@@ -1,0 +1,389 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+:root {
+  --radius: 0.625rem;
+  --frame: min(1280px, 92vw);
+  /* One light theme: cream paper, MSA blue-green ink, gold only as ornament. */
+  --background: #f4efe3;
+  --foreground: #1f4f5c;
+  --card: #f4efe3;
+  --card-foreground: #1f4f5c;
+  --popover: #f4efe3;
+  --popover-foreground: #1f4f5c;
+  --primary: #307060;
+  --primary-foreground: #f4efe3;
+  --secondary: #ebe5d5;
+  --secondary-foreground: #1f4f5c;
+  --muted: #ebe5d5;
+  --muted-foreground: #4f6f73;
+  --accent: #ebe5d5;
+  --accent-foreground: #1f4f5c;
+  --destructive: #b5573a;
+  --border: #c9c2b0;
+  --input: #c9c2b0;
+  --ring: #307060;
+  --gold: #a87a26;
+  --gold-text: #7d5a1a;
+  --blue: #2f5f8f;
+  --green: #307060;
+  /* Engraving: one blue-green ink on cream paper; gold only as a tiny accent (crescent, lantern light). */
+  --ink: #307060;
+  --ink-deep: #1f4f5c;
+  --paper: #f4efe3;
+  --paper-shade: #e6dfcc;
+  --accent-gold: #a87a26;
+  --gold-bright: #dcab45;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-gold: var(--gold);
+  --color-gold-text: var(--gold-text);
+  --color-blue: var(--blue);
+  --color-green: var(--green);
+  --color-ink: var(--ink);
+  --color-ink-deep: var(--ink-deep);
+  --color-paper: var(--paper);
+  --color-paper-shade: var(--paper-shade);
+  --color-accent-gold: var(--accent-gold);
+  --color-gold-bright: var(--gold-bright);
+  --font-sans: var(--font-geist-sans), system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+  --font-script: var(--font-pinyon), "Snell Roundhand", cursive;
+  --font-display: var(--font-instrument), "Times New Roman", serif;
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --animate-accordion-down: accordion-down 0.3s var(--ease-out-expo);
+  --animate-accordion-up: accordion-up 0.3s var(--ease-out-expo);
+}
+
+@layer base {
+  * { @apply border-border outline-ring/50; }
+  html { scroll-behavior: smooth; scroll-padding-top: 90px; }
+  body { @apply bg-background text-foreground font-sans antialiased; }
+  h1, h2, h3 { @apply font-medium tracking-tight; }
+}
+
+@utility mono-label {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted-foreground);
+}
+
+/* ---------- page frame: two hairline rules ---------- */
+.page-frame { position: relative; }
+.page-frame::before, .page-frame::after {
+  content: ""; position: absolute; top: 0; bottom: 0; width: 1px;
+  background: var(--border); pointer-events: none; z-index: 1;
+}
+.page-frame::before { left: calc((100% - var(--frame)) / 2); }
+.page-frame::after { right: calc((100% - var(--frame)) / 2); }
+
+/* ---------- reveal + stroke drawing (driven by data-in-view) ---------- */
+[data-reveal] {
+  opacity: 0; transform: translateY(18px);
+  transition: opacity 0.8s var(--ease-out-expo), transform 0.8s var(--ease-out-expo);
+  transition-delay: calc(var(--d, 0) * 90ms);
+}
+[data-reveal][data-in-view="true"] { opacity: 1; transform: none; }
+
+.draw {
+  stroke-dasharray: 1; stroke-dashoffset: 1;
+  transition: stroke-dashoffset 1.3s var(--ease-out-expo);
+  transition-delay: calc(var(--d, 0) * 0.12s + 0.1s);
+}
+[data-in-view="true"] .draw { stroke-dashoffset: 0; }
+/* Engraved strokes use non-scaling-stroke, so their dashes are measured in screen pixels and pathLength
+   normalisation would cut long outlines short on big screens. Use a pixel length longer than any outline. */
+.etch.draw { stroke-dasharray: 6000; stroke-dashoffset: 6000; transition-duration: 1.9s; }
+[data-in-view="true"] .etch.draw { stroke-dashoffset: 0; }
+.draw-abs {
+  stroke-dasharray: 5000; stroke-dashoffset: 5000;
+  transition: stroke-dashoffset 2.6s cubic-bezier(0.65, 0, 0.35, 1) 0.3s;
+}
+[data-in-view="true"] .draw-abs { stroke-dashoffset: 0; }
+
+/* ---------- keyframe effects copied in spirit from torontotechweek.com ---------- */
+@keyframes glow { 0%, 100% { opacity: 0.35; } 50% { opacity: 1; } }
+@keyframes flicker {
+  0% { opacity: 0; } 8% { opacity: 1; } 14% { opacity: 0; } 22% { opacity: 1; }
+  30% { opacity: 0.2; } 44% { opacity: 1; } 100% { opacity: 1; }
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes spin-reverse { to { transform: rotate(-360deg); } }
+.spin-slow { animation: spin 20s linear infinite; transform-origin: center; transform-box: fill-box; }
+.spin-slow-reverse { animation: spin-reverse 15s linear infinite; transform-origin: center; transform-box: fill-box; }
+[data-in-view="true"] .flicker-once { animation: flicker 0.6s steps(1) 1; }
+
+/* ---------- engraving (components/engraving) ---------- */
+.engraving-defs { position: absolute; width: 0; height: 0; overflow: hidden; }
+.engraving-defs line, .engraving-defs path { stroke: var(--ink); fill: none; }
+.engraving-defs circle { fill: var(--ink); }
+.engraving-defs .star-paper { fill: var(--paper); stroke: none; }
+.engraving-defs .star-gap { stroke: var(--paper); }
+
+
+
+.etch {
+  fill: none; stroke: var(--ink); stroke-linecap: round; stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+.etch-hair { stroke-width: 0.75; }
+.etch-line { stroke-width: 1.25; }
+.etch-bold { stroke-width: 2.2; stroke: var(--ink-deep); }
+.etch-paper { fill: var(--paper); stroke: none; }
+.etch-ink { fill: var(--ink); }
+
+/* Hatching fades in after its outline has started drawing. */
+.hatch-in {
+  opacity: 0;
+  transition: opacity 0.8s var(--ease-out-expo);
+  transition-delay: calc(var(--d, 0) * 0.1s + 0.35s);
+}
+[data-in-view="true"] .hatch-in { opacity: 1; }
+
+/* A slow pendulum for lanterns and palm crowns (origin set inline, in the drawing's units). */
+@keyframes sway { 0%, 100% { transform: rotate(-1.6deg); } 50% { transform: rotate(1.6deg); } }
+/* Lanterns as their own compositor layers: only transform and opacity change, nothing repaints. */
+.lantern-swing { position: absolute; transform-origin: 50% 0; animation: sway 7s ease-in-out infinite; animation-delay: var(--sway-delay, 0s); will-change: transform; }
+.lantern-cord { position: absolute; left: 50%; top: 0; width: 1px; background: var(--ink); }
+.lantern-light { position: absolute; border-radius: 4px; background: var(--accent-gold); animation: glow 4s ease-in-out infinite; will-change: opacity; }
+
+/* ---------- hero ---------- */
+.hero-vars { --sky-h: clamp(190px, min(26vw, 36vh), 520px); --hero-top: clamp(5rem, 11vh, 8rem); }
+.geisel-side { height: 100%; }
+/* Height of the strip below the drawings' ground line (20 of their 310 units), for pulling content up to it. */
+.hero-vars { --ground-gap: calc(var(--sky-h) * 20 / 310); }
+/* Phones and tall narrow windows: the drawing's frame is wider than the building (planters and lamps flank it),
+   so the frame is allowed to run past the screen edges, which makes the building itself fill about 94% of the width.
+   Its height is set so the width cap and the height agree; the palms beside it are left to the crop. */
+@media (max-width: 640px), (orientation: portrait) and (max-width: 1100px) {
+  .hero-vars { --sky-h: clamp(170px, 48vw, 430px); --geisel-max-w: 125vw; --hero-top: 5rem; }
+  .geisel-side { height: 62%; }
+  .geisel .etch-hair { stroke-width: 1.05; }
+  .geisel .etch-line { stroke-width: 1.7; }
+  .geisel .etch-bold { stroke-width: 2.8; }
+}
+@media (min-width: 641px) and (max-height: 760px) {
+  .hero-vars { --sky-h: clamp(150px, min(24vw, 34vh), 300px); --hero-top: 4.5rem; }
+}
+
+/* ---------- opening-night hero ---------- */
+.night { --hero-top: clamp(5rem, 11vh, 8rem); }
+.night {
+  --ink: #e9e2cc; --ink-deep: #f4efe3; --paper: #0f3b3f; --gold-bright: #dcab45;
+  --reel-h: clamp(180px, 30svh, 340px); --card-w: clamp(120px, calc(var(--reel-h) * 0.72), 250px);
+  color: #f4efe3; background: radial-gradient(ellipse 90% 75% at 50% 34%, #1f5a60 0%, #174a52 46%, #0f3b3f 100%);
+}
+.night::after { /* the gold ground line the cream page begins on */
+  content: ""; position: absolute; inset: auto 0 0; height: 3px; background: var(--gold-bright); z-index: 3;
+}
+.night-layer { position: absolute; inset: 0; pointer-events: none; }
+.night-grain {
+  opacity: 0.1; mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 0.9 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+}
+/* Soft clouds: big radial gradients that only ever move by transform. */
+.night-cloud { position: absolute; width: 60vw; height: 36vw; border-radius: 50%; will-change: transform;
+  background: radial-gradient(closest-side, rgb(214 232 228 / 0.20), transparent); animation: cloud-drift 60s ease-in-out infinite alternate; }
+.night-cloud:nth-child(1) { left: -12vw; top: -6vw; }
+.night-cloud:nth-child(2) { right: -16vw; top: 8vw; animation-duration: 75s; animation-direction: alternate-reverse; }
+.night-cloud:nth-child(3) { left: 24vw; top: 34vw; width: 50vw; animation-duration: 90s; opacity: 0.7; }
+@keyframes cloud-drift { to { transform: translate3d(8vw, 2vw, 0); } }
+
+/* Photo reel: two rows of arch-topped windows drifting in opposite directions. */
+.reel-row { --p: 0; position: absolute; left: 0; width: 100%; height: var(--reel-h); overflow: hidden; pointer-events: none;
+  transform: translate3d(0, calc(var(--p) * var(--par, -60px)), 0); }
+.reel-row[data-row="a"] { top: 6%; --par: -80px; }
+.reel-row[data-row="b"] { top: calc(6% + var(--reel-h) + clamp(10px, 1.6vw, 24px)); --par: -30px; }
+.reel-track { display: flex; gap: clamp(14px, 2vw, 32px); width: max-content; height: 100%; will-change: transform; animation: reel 90s linear infinite; }
+.reel-row[data-row="b"] .reel-track { animation-direction: reverse; animation-duration: 110s; }
+@keyframes reel { to { transform: translate3d(-50%, 0, 0); } }
+.reel-card { flex: none; width: var(--card-w); height: 100%; border-radius: 999px 999px 14px 14px; overflow: hidden;
+  border: 3px solid rgb(255 255 255 / 0.9); box-shadow: 0 10px 30px -10px rgb(0 0 0 / 0.5); background: #0f3b3f; }
+.reel-card img { width: 100%; height: 100%; object-fit: cover; display: block; filter: brightness(1.45) contrast(1.05) saturate(1.15); }
+
+/* Duotone: a "color" blend of teal over the photos; the cursor punches a hole in it to show true colour. */
+.night-tint { --mx: -999px; --my: -999px; mix-blend-mode: color; background: #1d6e6a;
+  -webkit-mask-image: radial-gradient(circle 250px at var(--mx) var(--my), transparent 0 50%, #000 100%);
+          mask-image: radial-gradient(circle 250px at var(--mx) var(--my), transparent 0 50%, #000 100%); }
+.night-shade { --mx: -999px; --my: -999px; background: rgb(9 44 48 / 0.5);
+  -webkit-mask-image: radial-gradient(circle 300px at var(--mx) var(--my), transparent 0 45%, #000 100%);
+          mask-image: radial-gradient(circle 300px at var(--mx) var(--my), transparent 0 45%, #000 100%); }
+@media (hover: none), (pointer: coarse) { .night-tint { -webkit-mask-image: none; mask-image: none; opacity: 0.8; } .night-shade { -webkit-mask-image: none; mask-image: none; background: rgb(9 44 48 / 0.4); } }
+/* A dark pool behind the type so it always reads over the photos. */
+.night-scrim { background: radial-gradient(ellipse 62% 48% at 50% 40%, rgb(8 36 40 / 0.86), rgb(8 36 40 / 0.5) 55%, transparent 80%); }
+.night-vignette { background: radial-gradient(ellipse 120% 100% at 50% 40%, transparent 55%, rgb(5 28 32 / 0.65)); }
+
+/* Title: drawn on glyph by glyph (outline), then filled. */
+.night-title { --p: 0; transform: translate3d(0, calc(var(--p) * -70px), 0) scale(calc(1 - var(--p) * 0.12)); opacity: calc(1 - var(--p) * 1.25); will-change: transform, opacity; }
+.night-title-tilt { --tx: 0; --ty: 0; transform: perspective(1000px) rotateX(calc(var(--ty) * -3deg)) rotateY(calc(var(--tx) * 4deg)); transition: transform 0.35s ease-out; }
+.glyph { fill: #fff; fill-opacity: 0; stroke: #fff; stroke-width: 1.1; stroke-linejoin: round; stroke-dasharray: 1; stroke-dashoffset: 1; }
+.night[data-ready="true"] .glyph {
+  stroke-dashoffset: 0; fill-opacity: 1;
+  transition: stroke-dashoffset 1.5s cubic-bezier(0.5, 0, 0.2, 1) calc(var(--i) * 0.11s + 0.5s),
+              fill-opacity 0.9s ease-out calc(var(--i) * 0.11s + 1.5s);
+}
+.title-svg { display: block; width: var(--line-w); height: auto; overflow: visible; filter: drop-shadow(0 6px 22px rgb(0 0 0 / 0.35)); }
+.title-lines { display: flex; flex-direction: column; align-items: center; gap: 0; --line-w: min(78vw, 480px); }
+@media (min-width: 900px) { .title-lines { flex-direction: row; justify-content: center; gap: 2.2vw; --line-w: min(41vw, 820px); } }
+
+/* Intro: everything else rises in once the hero is ready (see HeroMotion). */
+.intro { opacity: 0; transform: translate3d(0, 18px, 0); }
+.night[data-ready="true"] .intro { opacity: 1; transform: none; transition: opacity 0.9s var(--ease-out-expo) var(--at, 2s), transform 0.9s var(--ease-out-expo) var(--at, 2s); }
+.night-reel-wrap { opacity: 0; }
+.night[data-ready="true"] .night-reel-wrap { opacity: 1; transition: opacity 1.8s ease-out 0.1s; }
+
+/* ---------- nav ---------- */
+/* The MSA logo (public/art/msa-logo.png) as a mask, so it takes the bar's text colour: cream on the dark hero, teal on the cream bar. */
+.msa-logo-link { display: block; line-height: 0; }
+.msa-logo { display: block; height: 38px; aspect-ratio: 624 / 254; background-color: currentColor;
+  -webkit-mask: url(/art/msa-logo.png) center / contain no-repeat; mask: url(/art/msa-logo.png) center / contain no-repeat; }
+@media (min-width: 768px) { .msa-logo { height: 42px; } }
+.nav-notch { clip-path: polygon(0 0, 100% 0, 100% 30%, calc(100% - 26px) 100%, 26px 100%, 0 30%); }
+
+/* ---------- schedule spine ---------- */
+/* --line-x: where the double line runs. --gap: node-to-card distance (the connector length). */
+.spine { --line-x: 20px; --gap: 1.5rem; position: relative; }
+@media (min-width: 768px) { .spine { --line-x: 50%; --gap: 2.5rem; } }
+
+/* Two stacked double lines: muted underneath, ink on top scaled to the scroll progress. */
+.spine-line {
+  position: absolute; top: 0; bottom: 0; left: var(--line-x); width: 7px;
+  border-inline: 1px solid var(--border); transform: translateX(-50%);
+}
+.spine-fill { border-color: var(--ink); transform: translateX(-50%) scaleY(var(--progress, 1)); transform-origin: top; }
+
+/* Start medallion and end cap, centred on the line. */
+.spine-cap { position: relative; height: 2rem; }
+.spine-cap > * { position: absolute; top: 0; left: var(--line-x); transform: translateX(-50%); }
+.spine-end {
+  top: auto; bottom: 0; width: 22px; height: 7px;
+  border: 1px solid var(--ink); border-radius: 999px; background: var(--background);
+}
+
+/* Cards: right of the line on phones; alternating halves on desktop. */
+.spine-card { margin-left: calc(var(--line-x) + var(--gap)); }
+@media (min-width: 768px) {
+  .spine-card { width: calc(50% - var(--gap)); }
+  [data-side="left"] > .spine-card { margin-left: 0; }
+}
+
+/* Node + connector sit in the card header (vertically centred on it) and reach back to the line.
+   The +1px crosses the card's own (transparent) 1px border. */
+.spine-connector {
+  position: absolute; top: 50%; right: 100%; width: calc(var(--gap) + 1px);
+  border-top: 1px solid var(--border); transition: border-color 0.3s;
+}
+.spine-node {
+  position: absolute; top: 50%; left: calc(-1 * (var(--gap) + 1px)); z-index: 1;
+  width: 14px; height: 14px; border: 1px solid var(--ink); border-radius: 999px;
+  background: var(--background); transform: translate(-50%, -50%); transition: background-color 0.3s;
+}
+@media (min-width: 768px) {
+  [data-side="left"] .spine-connector { right: auto; left: 100%; }
+  [data-side="left"] .spine-node { left: calc(100% + var(--gap) + 1px); }
+}
+[data-passed="true"] .spine-connector { border-color: var(--ink); }
+[data-passed="true"] .spine-node { background: var(--ink); }
+
+/* Card border drawn as an SVG rect over the card's 1px border (the card's own border stays transparent). */
+.spine-border {
+  x: 0.5px; y: 0.5px; width: calc(100% - 1px); height: calc(100% - 1px);
+  fill: none; stroke: var(--border); stroke-width: 1;
+}
+
+/* ---------- speaker portrait (arch + star tint) ---------- */
+.portrait {
+  position: relative; overflow: hidden; width: 100%; aspect-ratio: 4 / 5;
+  border: 1px solid var(--border); border-radius: 999px 999px 8px 8px; background: var(--secondary);
+}
+.portrait::after {
+  content: ""; position: absolute; inset: 0; background: var(--ink); opacity: 0.22;
+  -webkit-mask: url(/star.svg) center / 120px 120px; mask: url(/star.svg) center / 120px 120px;
+}
+
+/* ---------- Quiet Edition page format ---------- */
+/* Big centred serif statements, small centred sans paragraphs, lots of air. */
+@utility qe-lead {
+  font-family: var(--font-display); font-weight: 400; color: var(--ink-deep);
+  font-size: clamp(1.9rem, 3.4vw, 5rem); line-height: 1.02; letter-spacing: -0.02em;
+  max-width: 16em; margin-inline: auto; text-wrap: balance;
+}
+@utility qe-lead-sm {
+  font-family: var(--font-display); font-weight: 400; color: var(--ink-deep);
+  font-size: clamp(1.4rem, 2.2vw, 3rem); line-height: 1.05; letter-spacing: -0.015em;
+  max-width: 24em; margin-inline: auto; text-wrap: balance;
+}
+@utility qe-body {
+  font-size: clamp(0.95rem, 1.05vw, 1.4rem); line-height: 1.35; color: var(--ink-deep);
+  max-width: 32em; margin-inline: auto; text-wrap: pretty;
+}
+.qe-block { min-height: 62svh; display: grid; place-items: center; padding: 5rem var(--gutter, 1.25rem); text-align: center; }
+.qe-section { padding: 5rem var(--gutter, 1.25rem); text-align: center; }
+[data-focus] { will-change: filter, opacity; }
+
+/* Pinned vignette: an illustration over a short paragraph, held while the next one arrives. */
+.qe-vignette { height: 125svh; }
+.qe-vignette > .stick { position: sticky; top: 0; height: 100svh; display: grid; place-content: center; justify-items: center; gap: 2.25rem; padding: 6rem var(--gutter, 1.25rem) 0; text-align: center; }
+
+/* Prints: off-white card with a thin border, soft shadow, slight tilt. */
+.qe-print {
+  background: #fbf8f0; padding: 10px; border-radius: 4px;
+  box-shadow: 0 1px 1px rgb(31 79 92 / 0.14), 0 16px 32px -12px rgb(31 79 92 / 0.32);
+}
+.qe-print > .plate { border: 1px solid color-mix(in srgb, var(--ink) 35%, transparent); border-radius: 2px; overflow: hidden; background: var(--paper); }
+
+/* Pill button, as in the Quiet Edition closing. */
+.qe-pill {
+  display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.55rem 1.1rem; border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--ink-deep) 30%, transparent); background: #fbf8f0; color: var(--ink-deep);
+  font-weight: 500; font-size: 0.95rem; transition: background-color .3s, color .3s;
+}
+.qe-pill:hover, .qe-pill:focus-visible { background: var(--ink-deep); color: var(--paper); }
+
+/* Gallery ticker (components/site/gallery.tsx): one seamless row, paused on hover, faded at the edges. */
+.ticker { overflow: hidden; -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent); mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent); }
+.ticker-track { --gap: clamp(14px, 1.6vw, 24px); display: flex; gap: var(--gap); width: max-content; list-style: none; padding: 6px 0 18px;
+  animation: ticker 48s linear infinite; will-change: transform; }
+.ticker:hover .ticker-track { animation-play-state: paused; }
+/* Three copies of the set; moving by one copy (a third, plus a third of a gap) makes the loop seamless. */
+@keyframes ticker { to { transform: translate3d(calc(-100% / 3 - var(--gap) / 3), 0, 0); } }
+.ticker-card { flex: none; width: clamp(160px, 19vw, 250px); aspect-ratio: 3 / 4; border-radius: 999px 999px 12px 12px; overflow: hidden;
+  border: 2px solid var(--ink); box-shadow: 0 12px 26px -14px rgb(31 79 92 / 0.45); background: var(--paper-shade); }
+@media (prefers-reduced-motion: reduce) {
+  .ticker { overflow-x: auto; -webkit-mask-image: none; mask-image: none; scroll-snap-type: x mandatory; }
+  .ticker-track { animation: none; padding-inline: 20px; }
+  .ticker-card { scroll-snap-align: center; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important; animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important; transition-delay: 0s !important; scroll-behavior: auto !important;
+  }
+}
