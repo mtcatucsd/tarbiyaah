@@ -1,10 +1,9 @@
 import { describe, expect, it } from "vitest";
 import { GROW_BOX, engravedPalm, engravedUndergrowth } from "@/components/engraving/flora";
-import { hankin, starTile, tileCentroid } from "@/components/engraving/pattern";
 import { GEISEL_BOUNDS, geiselParts } from "@/components/engraving/geisel";
 import { sideParts } from "@/components/engraving/scene";
 import {
-  apexAngle, archApex, archPoint, archRadius, insetArch, palm, pointedArch, rng, starPoints, voussoirs, type Arch,
+  palm, rng, starPoints,
 } from "@/components/engraving/shapes";
 
 /** Every point a path visits (end points of each segment, arcs included), in absolute coordinates. */
@@ -31,62 +30,7 @@ const coords = (d: string) => {
   return out;
 };
 
-describe("pointed arches", () => {
-  const a: Arch = { left: 0, right: 400, spring: 500, radius: archRadius(400, 280) };
-
-  it("chooses a radius that gives the requested rise", () => {
-    expect(archApex(a)).toBeCloseTo(500 - 280, 6);
-  });
-  it("never goes below a semicircle", () => {
-    expect(archRadius(400, 50)).toBe(200);
-    expect(archApex({ ...a, radius: 200 })).toBeCloseTo(300, 6);
-  });
-  it("meets on the axis at the apex angle, from both sides", () => {
-    const top = apexAngle(a);
-    const [lx, ly] = archPoint(a, top, -1);
-    const [rx, ry] = archPoint(a, top, 1);
-    expect(lx).toBeCloseTo(200, 6);
-    expect(rx).toBeCloseTo(200, 6);
-    expect(ly).toBeCloseTo(archApex(a), 6);
-    expect(ry).toBeCloseTo(archApex(a), 6);
-  });
-  it("starts at the jambs on the spring line", () => {
-    expect(archPoint(a, 0, -1)).toEqual([0, 500]);
-    expect(archPoint(a, 0, 1)).toEqual([400, 500]);
-  });
-  it("insets concentrically, so the inner apex is lower but still on the axis", () => {
-    const inner = insetArch(a, 20);
-    expect(archApex(inner)).toBeGreaterThan(archApex(a));
-    expect(archPoint(inner, apexAngle(inner), -1)[0]).toBeCloseTo(200, 6);
-  });
-  it("draws from the base up and back down", () => {
-    expect(pointedArch(a, 900)).toMatch(/^M0 900 V500 A.* 400 500 V900$/);
-  });
-  it("splits the band into n voussoirs per side, alternating", () => {
-    const { even, odd } = voussoirs(a, 20, 7);
-    const count = (s: string) => (s.match(/Z/g) ?? []).length;
-    expect(count(even) + count(odd)).toBe(14);
-    expect(count(even)).toBe(8); // blocks 0, 2, 4, 6 on each side
-  });
-});
-
-describe("star tile and plants", () => {
-  it("is balanced about the tile centre (it tiles by symmetry)", () => {
-    const [cx, cy] = tileCentroid(starTile(56));
-    expect(Math.abs(cx - 28)).toBeLessThan(2);
-    expect(Math.abs(cy - 28)).toBeLessThan(2);
-  });
-  it("puts every Hankin ray inside its polygon", () => {
-    const sq: [number, number][] = [[0, 0], [10, 0], [10, 10], [0, 10]];
-    for (const [a, b] of hankin(sq, (64 * Math.PI) / 180)) {
-      for (const [x, y] of [a, b]) {
-        expect(x).toBeGreaterThanOrEqual(-1e-9);
-        expect(x).toBeLessThanOrEqual(10 + 1e-9);
-        expect(y).toBeGreaterThanOrEqual(-1e-9);
-        expect(y).toBeLessThanOrEqual(10 + 1e-9);
-      }
-    }
-  });
+describe("plants", () => {
   it("palms are deterministic per seed", () => {
     expect(engravedPalm(5)).toEqual(engravedPalm(5));
     expect(engravedPalm(5).fronds).not.toBe(engravedPalm(6).fronds);

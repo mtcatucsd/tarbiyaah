@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { countValue, splitTime, ticketHref } from "@/lib/format";
+import { countValue, splitTime, ticketHref, ticketLink } from "@/lib/format";
 
 describe("splitTime", () => {
   it("breaks milliseconds into days/hours/minutes/seconds", () => {
@@ -17,12 +17,12 @@ describe("splitTime", () => {
 
 describe("ticketHref", () => {
   it("accepts http(s) urls only", () => {
-    expect(ticketHref("https://typeform.com/to/abc")).toBe("https://typeform.com/to/abc");
+    expect(ticketHref("https://lu.ma/tarbiyyah")).toBe("https://lu.ma/tarbiyyah");
     expect(ticketHref("http://example.com")).toBe("http://example.com");
     expect(ticketHref("")).toBe("#tickets");
     expect(ticketHref(undefined)).toBe("#tickets");
     expect(ticketHref("javascript:alert(1)")).toBe("#tickets");
-    expect(ticketHref("typeform.com/to/abc")).toBe("#tickets");
+    expect(ticketHref("lu.ma/tarbiyyah")).toBe("#tickets");
   });
 });
 
@@ -35,5 +35,15 @@ describe("countValue", () => {
     const mid = countValue(500, 0.5);
     expect(mid).toBeGreaterThan(250);
     expect(mid).toBeLessThan(500);
+  });
+});
+
+describe("ticketLink", () => {
+  it("opens the Luma event in a new tab once the link is set", () => {
+    expect(ticketLink("https://lu.ma/tarbiyyah")).toEqual({ href: "https://lu.ma/tarbiyyah", target: "_blank", rel: "noopener noreferrer" });
+  });
+  it("scrolls to the tickets section while the link is empty", () => {
+    expect(ticketLink("")).toEqual({ href: "#tickets" });
+    expect(ticketLink(undefined)).toEqual({ href: "#tickets" });
   });
 });

@@ -94,15 +94,6 @@
   color: var(--muted-foreground);
 }
 
-/* ---------- page frame: two hairline rules ---------- */
-.page-frame { position: relative; }
-.page-frame::before, .page-frame::after {
-  content: ""; position: absolute; top: 0; bottom: 0; width: 1px;
-  background: var(--border); pointer-events: none; z-index: 1;
-}
-.page-frame::before { left: calc((100% - var(--frame)) / 2); }
-.page-frame::after { right: calc((100% - var(--frame)) / 2); }
-
 /* ---------- reveal + stroke drawing (driven by data-in-view) ---------- */
 [data-reveal] {
   opacity: 0; transform: translateY(18px);
@@ -121,11 +112,6 @@
    normalisation would cut long outlines short on big screens. Use a pixel length longer than any outline. */
 .etch.draw { stroke-dasharray: 6000; stroke-dashoffset: 6000; transition-duration: 1.9s; }
 [data-in-view="true"] .etch.draw { stroke-dashoffset: 0; }
-.draw-abs {
-  stroke-dasharray: 5000; stroke-dashoffset: 5000;
-  transition: stroke-dashoffset 2.6s cubic-bezier(0.65, 0, 0.35, 1) 0.3s;
-}
-[data-in-view="true"] .draw-abs { stroke-dashoffset: 0; }
 
 /* ---------- keyframe effects copied in spirit from torontotechweek.com ---------- */
 @keyframes glow { 0%, 100% { opacity: 0.35; } 50% { opacity: 1; } }
@@ -133,18 +119,11 @@
   0% { opacity: 0; } 8% { opacity: 1; } 14% { opacity: 0; } 22% { opacity: 1; }
   30% { opacity: 0.2; } 44% { opacity: 1; } 100% { opacity: 1; }
 }
-@keyframes spin { to { transform: rotate(360deg); } }
-@keyframes spin-reverse { to { transform: rotate(-360deg); } }
-.spin-slow { animation: spin 20s linear infinite; transform-origin: center; transform-box: fill-box; }
-.spin-slow-reverse { animation: spin-reverse 15s linear infinite; transform-origin: center; transform-box: fill-box; }
 [data-in-view="true"] .flicker-once { animation: flicker 0.6s steps(1) 1; }
 
 /* ---------- engraving (components/engraving) ---------- */
 .engraving-defs { position: absolute; width: 0; height: 0; overflow: hidden; }
 .engraving-defs line, .engraving-defs path { stroke: var(--ink); fill: none; }
-.engraving-defs circle { fill: var(--ink); }
-.engraving-defs .star-paper { fill: var(--paper); stroke: none; }
-.engraving-defs .star-gap { stroke: var(--paper); }
 
 
 
@@ -175,14 +154,20 @@
 
 /* ---------- hero ---------- */
 .hero-vars { --sky-h: clamp(190px, min(26vw, 36vh), 520px); --hero-top: clamp(5rem, 11vh, 8rem); }
+/* The middle drawing (Geisel, 760 x 310 units) is deliberately smaller than the scene's height allows, so the palms and
+   undergrowth either side show. --geisel-w is its rendered width; --geisel-scale shrinks it, --geisel-max-w caps it. */
+.hero-vars { --geisel-scale: 0.7; --geisel-max-w: 100vw; --geisel-w: min(calc(var(--sky-h) * 760 / 310 * var(--geisel-scale)), var(--geisel-max-w)); }
+/* The hero's Geisel is a little larger than the footer's (a photo reads best bigger). */
+.night.hero-vars { --geisel-scale: 0.86; }
 .geisel-side { height: 100%; }
 /* Height of the strip below the drawings' ground line (20 of their 310 units), for pulling content up to it. */
-.hero-vars { --ground-gap: calc(var(--sky-h) * 20 / 310); }
+.hero-vars { --ground-gap: calc(var(--geisel-w) * 20 / 760); }
 /* Phones and tall narrow windows: the drawing's frame is wider than the building (planters and lamps flank it),
    so the frame is allowed to run past the screen edges, which makes the building itself fill about 94% of the width.
    Its height is set so the width cap and the height agree; the palms beside it are left to the crop. */
 @media (max-width: 640px), (orientation: portrait) and (max-width: 1100px) {
-  .hero-vars { --sky-h: clamp(170px, 48vw, 430px); --geisel-max-w: 125vw; --hero-top: 5rem; }
+  .hero-vars { --sky-h: clamp(170px, 48vw, 430px); --geisel-max-w: 76vw; --hero-top: 5rem; }
+  .night.hero-vars { --geisel-max-w: 84vw; }
   .geisel-side { height: 62%; }
   .geisel .etch-hair { stroke-width: 1.05; }
   .geisel .etch-line { stroke-width: 1.7; }
@@ -234,7 +219,15 @@
 .night-shade { --mx: -999px; --my: -999px; background: rgb(9 44 48 / 0.5);
   -webkit-mask-image: radial-gradient(circle 300px at var(--mx) var(--my), transparent 0 45%, #000 100%);
           mask-image: radial-gradient(circle 300px at var(--mx) var(--my), transparent 0 45%, #000 100%); }
-@media (hover: none), (pointer: coarse) { .night-tint { -webkit-mask-image: none; mask-image: none; opacity: 0.8; } .night-shade { -webkit-mask-image: none; mask-image: none; background: rgb(9 44 48 / 0.4); } }
+/* Touch screens: no cursor spotlight, and no full-screen blend modes (they re-composite the whole hero every frame).
+   A plain teal wash and a grey-scaled photo give a close match to the duotone. */
+@media (hover: none), (pointer: coarse) {
+  .night-tint { -webkit-mask-image: none; mask-image: none; mix-blend-mode: normal; opacity: 0.5; }
+  .night-shade { -webkit-mask-image: none; mask-image: none; background: rgb(9 44 48 / 0.3); }
+  .night-grain { display: none; }
+  .reel-card img { filter: grayscale(0.7) brightness(1.4) contrast(1.05); }
+  .night-cloud { animation: none; }
+}
 /* A dark pool behind the type so it always reads over the photos. */
 .night-scrim { background: radial-gradient(ellipse 62% 48% at 50% 40%, rgb(8 36 40 / 0.86), rgb(8 36 40 / 0.5) 55%, transparent 80%); }
 .night-vignette { background: radial-gradient(ellipse 120% 100% at 50% 40%, transparent 55%, rgb(5 28 32 / 0.65)); }
@@ -259,12 +252,11 @@
 .night[data-ready="true"] .night-reel-wrap { opacity: 1; transition: opacity 1.8s ease-out 0.1s; }
 
 /* ---------- nav ---------- */
-/* The MSA logo (public/art/msa-logo.png) as a mask, so it takes the bar's text colour: cream on the dark hero, teal on the cream bar. */
+/* The MSA logo (public/art/msa-logo.webp) as a mask, so it takes the bar's text colour: cream on the dark hero, teal on the cream bar. */
 .msa-logo-link { display: block; line-height: 0; }
 .msa-logo { display: block; height: 38px; aspect-ratio: 624 / 254; background-color: currentColor;
-  -webkit-mask: url(/art/msa-logo.png) center / contain no-repeat; mask: url(/art/msa-logo.png) center / contain no-repeat; }
+  -webkit-mask: url(/art/msa-logo.webp) center / contain no-repeat; mask: url(/art/msa-logo.webp) center / contain no-repeat; }
 @media (min-width: 768px) { .msa-logo { height: 42px; } }
-.nav-notch { clip-path: polygon(0 0, 100% 0, 100% 30%, calc(100% - 26px) 100%, 26px 100%, 0 30%); }
 
 /* ---------- schedule spine ---------- */
 /* --line-x: where the double line runs. --gap: node-to-card distance (the connector length). */
@@ -343,13 +335,22 @@
   font-size: clamp(0.95rem, 1.05vw, 1.4rem); line-height: 1.35; color: var(--ink-deep);
   max-width: 32em; margin-inline: auto; text-wrap: pretty;
 }
-.qe-block { min-height: 62svh; display: grid; place-items: center; padding: 5rem var(--gutter, 1.25rem); text-align: center; }
-.qe-section { padding: 5rem var(--gutter, 1.25rem); text-align: center; }
-[data-focus] { will-change: filter, opacity; }
+.qe-block { display: grid; place-items: center; padding: 3rem var(--gutter, 1.25rem); text-align: center; }
+.qe-section { padding: 3rem var(--gutter, 1.25rem); text-align: center; }
+[data-focus] { will-change: opacity; }
 
-/* Pinned vignette: an illustration over a short paragraph, held while the next one arrives. */
-.qe-vignette { height: 125svh; }
-.qe-vignette > .stick { position: sticky; top: 0; height: 100svh; display: grid; place-content: center; justify-items: center; gap: 2.25rem; padding: 6rem var(--gutter, 1.25rem) 0; text-align: center; }
+/* Vignettes: an illustration over a short paragraph. Two sit side by side on wide screens, stacked on phones. */
+.qe-vignette-row { display: grid; gap: 2rem 3rem; padding: 2.5rem var(--gutter, 1.25rem); max-width: 1000px; margin-inline: auto; }
+@media (min-width: 768px) { .qe-vignette-row { grid-template-columns: 1fr 1fr; align-items: start; } }
+.qe-vignette-item { display: grid; justify-items: center; gap: 1.25rem; text-align: center; }
+
+/* Phones: tighter still, and a quicker, shorter slide-in. */
+@media (max-width: 640px) {
+  .qe-block { padding: 2.25rem var(--gutter, 1.25rem); }
+  .qe-section { padding: 2rem var(--gutter, 1.25rem); }
+  .qe-vignette-row { gap: 1.5rem; padding: 1.5rem var(--gutter, 1.25rem); }
+  [data-reveal] { transform: translateY(10px); transition-duration: 0.45s; transition-delay: calc(var(--d, 0) * 50ms); }
+}
 
 /* Prints: off-white card with a thin border, soft shadow, slight tilt. */
 .qe-print {
@@ -373,7 +374,7 @@
 .ticker:hover .ticker-track { animation-play-state: paused; }
 /* Three copies of the set; moving by one copy (a third, plus a third of a gap) makes the loop seamless. */
 @keyframes ticker { to { transform: translate3d(calc(-100% / 3 - var(--gap) / 3), 0, 0); } }
-.ticker-card { flex: none; width: clamp(160px, 19vw, 250px); aspect-ratio: 3 / 4; border-radius: 999px 999px 12px 12px; overflow: hidden;
+.ticker-card { flex: none; height: clamp(150px, 20vw, 260px); border-radius: 14px; overflow: hidden;
   border: 2px solid var(--ink); box-shadow: 0 12px 26px -14px rgb(31 79 92 / 0.45); background: var(--paper-shade); }
 @media (prefers-reduced-motion: reduce) {
   .ticker { overflow-x: auto; -webkit-mask-image: none; mask-image: none; scroll-snap-type: x mandatory; }

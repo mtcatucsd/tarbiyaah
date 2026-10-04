@@ -7,12 +7,10 @@ export function sessionsForDay(sessions: Session[], day: DayFilter): Session[] {
   return list.sort((a, b) => new Date(a.start).getTime() - new Date(b.start).getTime());
 }
 
-export function directionsUrls(venue: Venue) {
+/** Google Maps walking directions to the venue (opens the Maps app on phones, the website elsewhere). */
+export function directionsUrl(venue: Venue) {
   const [lng, lat] = venue.coordinates;
-  return {
-    google: `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&travelmode=walking`,
-    apple: `https://maps.apple.com/?daddr=${lat},${lng}&dirflg=w`,
-  };
+  return `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&travelmode=walking`;
 }
 
 // Google Maps embed that needs no API key. Searching by name lets Google drop its own pin on the building.

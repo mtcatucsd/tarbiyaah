@@ -18,4 +18,8 @@ describe("siteConfig matches the event", () => {
     expect(siteConfig.theme).toContain("Ibad al-Rahman");
     expect(siteConfig.timeText).toBe("12 PM – 8 PM");
   });
+  it("sends Get tickets to Luma (or is still empty, which scrolls to the tickets section)", () => {
+    const url: string = siteConfig.ticketUrl;
+    if (url !== "") expect(url).toMatch(/^https:\/\/(lu\.ma|luma\.com)\/\S+$/);
+  });
 });

@@ -15,6 +15,12 @@ export function ticketHref(url?: string) {
   return typeof url === "string" && /^https?:\/\//.test(url) ? url : "#tickets";
 }
 
+/** Props for every "Get tickets" link: straight to the Luma event in a new tab, or to the tickets section until the link is set. */
+export function ticketLink(url?: string) {
+  const href = ticketHref(url);
+  return href.startsWith("http") ? { href, target: "_blank", rel: "noopener noreferrer" } : { href };
+}
+
 export function countValue(target: number, progress: number) {
   const p = Math.min(1, Math.max(0, progress));
   return Math.round(target * (1 - Math.pow(1 - p, 3)));

@@ -2,7 +2,7 @@
 import { Menu } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
-import { ticketHref } from "@/lib/format";
+import { ticketLink } from "@/lib/format";
 import { siteConfig } from "@/lib/site-config";
 import { cn } from "@/lib/utils";
 
@@ -32,7 +32,7 @@ export function Nav() {
     window.addEventListener("scroll", check, { passive: true });
     return () => window.removeEventListener("scroll", check);
   }, []);
-  const tickets = ticketHref(siteConfig.ticketUrl);
+  const tickets = ticketLink(siteConfig.ticketUrl);
   return (
     <header
       className={cn(
@@ -46,7 +46,7 @@ export function Nav() {
         </a>
         <div className="flex items-center gap-3 md:gap-5">
           <span className="hidden font-display text-[1.35rem] leading-none md:inline">Nov 1, 2026 · UC San Diego</span>
-          <a href={tickets} className={cn("qe-pill !py-1.5 !text-sm", !solid && "!border-[#f4efe3]/50 !bg-[#f4efe3]/10 !text-[#f4efe3] hover:!bg-[#f4efe3] hover:!text-[#0f3b3f]")} {...(tickets.startsWith("http") ? { target: "_blank", rel: "noopener noreferrer" } : {})}>
+          <a {...tickets} className={cn("qe-pill !py-1.5 !text-sm", !solid && "!border-[#f4efe3]/50 !bg-[#f4efe3]/10 !text-[#f4efe3] hover:!bg-[#f4efe3] hover:!text-[#0f3b3f]")}>
             Get tickets
           </a>
           <Sheet open={open} onOpenChange={setOpen}>
@@ -57,12 +57,12 @@ export function Nav() {
             </SheetTrigger>
             <SheetContent side="right" className="w-[min(340px,86vw)] bg-background">
               <SheetHeader>
-                <SheetTitle className="font-script text-4xl font-normal text-ink-deep">Tarbiyyah</SheetTitle>
+                <SheetTitle className="font-script text-[1.9rem] font-normal leading-none text-ink-deep">Tarbiyyah Conference</SheetTitle>
               </SheetHeader>
               <ul className="grid gap-1 px-4">
                 {links.map((l) => (
                   <li key={l.href}>
-                    <a href={l.href} onClick={() => setOpen(false)} className="block border-b border-ink/15 py-3 font-display text-2xl text-ink-deep">
+                    <a {...(l.label === "Tickets" ? tickets : { href: l.href })} onClick={() => setOpen(false)} className="block border-b border-ink/15 py-3 font-display text-2xl text-ink-deep">
                       {l.label}
                     </a>
                   </li>

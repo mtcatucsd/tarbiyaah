@@ -8,6 +8,10 @@ import { useEffect } from "react";
 export function ScrollFocus() {
   useEffect(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    // On touch screens a blur filter is costly and makes text look unready for a moment, so there it is a short fade
+    // that only affects the last stretch above the bottom edge (text is fully visible almost as soon as it appears).
+    const coarse = window.matchMedia("(pointer: coarse)").matches || window.innerWidth < 640;
+    const BLUR = coarse ? 0 : 10, FADE = coarse ? 0.45 : 0.55;
     const near = new Set<HTMLElement>();
     const last = new WeakMap<HTMLElement, number>();
     let frame = 0;
@@ -18,13 +22,13 @@ export function ScrollFocus() {
       for (const el of near) {
         const r = el.getBoundingClientRect();
         const c = r.top + r.height / 2;
-        const below = Math.min(1, Math.max(0, (c - vh * 0.8) / (vh * 0.25)));
-        const above = Math.min(1, Math.max(0, (vh * 0.1 - c) / (vh * 0.3)));
+        const below = Math.min(1, Math.max(0, (c - vh * (coarse ? 0.88 : 0.8)) / (vh * (coarse ? 0.14 : 0.25))));
+        const above = coarse ? 0 : Math.min(1, Math.max(0, (vh * 0.1 - c) / (vh * 0.3)));
         const k = Math.round(Math.max(below, above) * 20) / 20; // 5% steps
         if (last.get(el) === k) continue;
         last.set(el, k);
-        el.style.filter = k > 0 ? `blur(${(k * 10).toFixed(1)}px)` : "";
-        el.style.opacity = k > 0 ? (1 - k * 0.55).toFixed(2) : "";
+        el.style.filter = k > 0 && BLUR ? `blur(${(k * BLUR).toFixed(1)}px)` : "";
+        el.style.opacity = k > 0 ? (1 - k * FADE).toFixed(2) : "";
       }
     };
     const schedule = () => { if (!frame) frame = requestAnimationFrame(update); };

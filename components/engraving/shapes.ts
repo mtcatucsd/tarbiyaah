@@ -29,7 +29,7 @@ export function rng(seed: number) {
   return () => (s = (s * 16807) % 2147483647) / 2147483647;
 }
 
-// ---------- stars and rosettes ----------
+// ---------- stars ----------
 
 /** An n-pointed star polygon alternating between outer and inner radius, first point straight up. */
 export function starPoints(cx: number, cy: number, rOut: number, rIn: number, n: number): Pt[] {
@@ -40,101 +40,6 @@ export function starPoints(cx: number, cy: number, rOut: number, rIn: number, n:
   });
 }
 export const star = (cx: number, cy: number, rOut: number, rIn: number, n: number) => poly(starPoints(cx, cy, rOut, rIn, n));
-
-/** The khatam: an eight-pointed star made of two overlapping squares, with a ring inside. */
-export function khatam(cx: number, cy: number, r: number) {
-  const sq = (turn: number) =>
-    poly([0, 1, 2, 3].map((k) => {
-      const a = turn + (k * Math.PI) / 2;
-      return [cx + Math.cos(a) * r, cy + Math.sin(a) * r] as Pt;
-    }));
-  return `${sq(Math.PI / 4)} ${sq(0)} ${circle(cx, cy, r * 0.38)}`;
-}
-
-// ---------- pointed (two-centred) arches ----------
-
-/** A pointed arch: jambs at left/right, arcs of `radius` springing from y = spring. radius >= half the span. */
-export type Arch = { left: number; right: number; spring: number; radius: number };
-
-/** Radius that gives a pointed arch of the given span a given rise (apex height above the spring line). */
-export function archRadius(span: number, rise: number) {
-  return Math.max(span / 2, (rise * rise + (span * span) / 4) / span);
-}
-
-/** y of the apex, where the two arcs meet on the axis. */
-export function archApex({ left, right, spring, radius }: Arch) {
-  const off = radius - (right - left) / 2; // arc centre's distance from the axis
-  return spring - Math.sqrt(radius * radius - off * off);
-}
-
-/** Point on the arch at angle phi (radians) above the spring line; side -1 = left arc, 1 = right arc. */
-export function archPoint(a: Arch, phi: number, side: -1 | 1, radius = a.radius): Pt {
-  const centre = side < 0 ? a.left + a.radius : a.right - a.radius;
-  return [centre + side * Math.cos(phi) * radius, a.spring - Math.sin(phi) * radius];
-}
-
-/** Angle above the spring line at which the arcs meet. */
-export function apexAngle(a: Arch) {
-  return Math.acos((a.radius - (a.right - a.left) / 2) / a.radius);
-}
-
-/** Open path: up the left jamb from `base`, over the pointed head, down the right jamb. */
-export function pointedArch(a: Arch, base: number) {
-  const r = r1(a.radius);
-  const apex: Pt = [(a.left + a.right) / 2, archApex(a)];
-  return `M${fmt([a.left, base])} V${r1(a.spring)} A${r} ${r} 0 0 1 ${fmt(apex)} A${r} ${r} 0 0 1 ${fmt([a.right, a.spring])} V${r1(base)}`;
-}
-
-/** The arch head as a closed shape (closed along the spring line). */
-export const archHead = (a: Arch) => pointedArch(a, a.spring) + " Z";
-
-/** The concentric arch `band` units inside this one (same arc centres). */
-export const insetArch = (a: Arch, band: number): Arch => ({
-  left: a.left + band,
-  right: a.right - band,
-  spring: a.spring,
-  radius: a.radius - band,
-});
-
-/**
- * Voussoir blocks across the band between the arch and its inset, n per side, from the spring line to the apex.
- * Returns two path strings: even blocks and odd blocks (for striped ablaq masonry).
- */
-export function voussoirs(a: Arch, band: number, n: number) {
-  const inner = a.radius - band;
-  const top = apexAngle(a);
-  const out = ["", ""];
-  for (const side of [-1, 1] as const) {
-    for (let i = 0; i < n; i++) {
-      const p0 = (top * i) / n, p1 = (top * (i + 1)) / n;
-      const o0 = archPoint(a, p0, side), o1 = archPoint(a, p1, side);
-      const i0 = archPoint(a, p0, side, inner), i1 = archPoint(a, p1, side, inner);
-      // Rising along the left arc turns clockwise (sweep 1); along the right arc, counter-clockwise.
-      const up = side < 0 ? 1 : 0, down = 1 - up;
-      out[i % 2] +=
-        `M${fmt(i0)} L${fmt(o0)} A${r1(a.radius)} ${r1(a.radius)} 0 0 ${up} ${fmt(o1)} ` +
-        `L${fmt(i1)} A${r1(inner)} ${r1(inner)} 0 0 ${down} ${fmt(i0)} Z `;
-    }
-  }
-  return { even: out[0].trim(), odd: out[1].trim() };
-}
-
-/** Rows of small pointed niches (muqarnas), `tiers` rows between y and y + depth, each row offset by half a cell. */
-export function muqarnas(x0: number, x1: number, y: number, depth: number, cells: number, tiers = 2) {
-  const h = depth / tiers;
-  let d = `M${r1(x0)} ${r1(y)} H${r1(x1)}`;
-  for (let t = 0; t < tiers; t++) {
-    const n = cells + (t % 2);
-    const w = (x1 - x0) / n;
-    const top = y + t * h, bot = top + h;
-    for (let i = 0; i < n; i++) {
-      const xa = x0 + i * w, xb = xa + w, mid = xa + w / 2;
-      d += ` M${r1(xa)} ${r1(bot)} Q${r1(xa)} ${r1(top + h * 0.3)} ${r1(mid)} ${r1(top + h * 0.08)} Q${r1(xb)} ${r1(top + h * 0.3)} ${r1(xb)} ${r1(bot)}`;
-    }
-    d += ` M${r1(x0)} ${r1(bot)} H${r1(x1)}`;
-  }
-  return d;
-}
 
 // ---------- botanicals ----------
 
@@ -219,63 +124,6 @@ export function palm(x: number, base: number, height: number, lean: number, seed
     skirt += ` M${fmt([sx, sy])} q${r1(ox * 1.5)} ${r1(height * 0.08)} ${r1(ox * 2.2 + (r() - 0.5) * 4)} ${r1(height * (0.14 + r() * 0.06))}`;
   }
   return { trunk: outline, rings: rings.trim(), fronds: fronds.trim(), skirt: skirt.trim(), top };
-}
-
-/**
- * A eucalyptus: a tall pale trunk that forks into slender limbs, with pendulous clusters of narrow leaves.
- * `dark` leaves are drawn solid to give the crown its shadow side.
- */
-export function eucalyptus(x: number, base: number, height: number, seed: number) {
-  const r = rng(seed);
-  const lean = (r() - 0.5) * height * 0.12;
-  const forkT = 0.48 + r() * 0.1;
-  const fork: Pt = [x + lean * forkT, base - height * forkT];
-  const tr = trunk([x, base], [x - lean * 0.3, base - height * forkT * 0.5], fork, height * 0.05, height * 0.032, 8);
-  let wood = `${poly(tr.left, false)} ${poly(tr.right, false)}`;
-  // Peeling-bark marks: a few short strokes down the trunk.
-  for (let i = 1; i < 7; i++) {
-    const { pt } = tr.at(i / 7);
-    wood += ` M${fmt([pt[0] + (r() - 0.5) * height * 0.02, pt[1]])} l0 ${r1(height * 0.025)}`;
-  }
-
-  const tips: Pt[] = [];
-  const limb = (p: Pt, a: number, len: number, depth: number) => {
-    const t: Pt = [p[0] + Math.cos(a) * len, p[1] + Math.sin(a) * len];
-    const bend = (r() - 0.5) * 0.6;
-    const c: Pt = [p[0] + Math.cos(a + bend) * len * 0.5, p[1] + Math.sin(a + bend) * len * 0.5];
-    wood += ` M${fmt(p)} Q${fmt(c)} ${fmt(t)}`;
-    tips.push(t);
-    if (depth === 0) return;
-    tips.push([(p[0] + t[0]) / 2, (p[1] + t[1]) / 2]);
-    for (const turn of [-0.45, 0.4]) limb(t, a + turn + (r() - 0.5) * 0.3, len * (0.62 + r() * 0.1), depth - 1);
-  };
-  const limbs = 2 + Math.floor(r() * 2);
-  for (let i = 0; i < limbs; i++) {
-    const a = rad(-90 + (i / Math.max(1, limbs - 1) - 0.5) * 60 + (r() - 0.5) * 16);
-    limb(fork, a, height * (0.2 + r() * 0.06), 2);
-  }
-
-  // Loose, drooping clusters around each twig. Light leaves are single curved strokes and dark ones small
-  // filled blades, both in whole relative units to keep the markup small.
-  let light = "", dark = "";
-  const ri = Math.round;
-  for (const [cx, cy] of tips) {
-    const count = 7 + Math.floor(r() * 4);
-    for (let k = 0; k < count; k++) {
-      const lx = cx + (r() - 0.5) * height * 0.13, ly = cy + (r() - 0.4) * height * 0.07;
-      const len = height * (0.05 + r() * 0.035);
-      const a = rad(90 + (lx - cx) * 1.2 + (r() - 0.5) * 50);
-      const ex = Math.cos(a) * len, ey = Math.sin(a) * len;
-      const bx = -Math.sin(a) * len * 0.18, by = Math.cos(a) * len * 0.18; // sideways bow
-      const start = `M${ri(lx)} ${ri(ly)}`;
-      if (r() < 0.15) {
-        dark += ` ${start}q${ri(ex / 2 + bx)} ${ri(ey / 2 + by)} ${ri(ex)} ${ri(ey)}q${ri(-ex / 2 + bx)} ${ri(-ey / 2 + by)} ${ri(-ex)} ${ri(-ey)}z`;
-      } else {
-        light += ` ${start}q${ri(ex / 2 + bx)} ${ri(ey / 2 + by)} ${ri(ex)} ${ri(ey)}`;
-      }
-    }
-  }
-  return { wood, light: light.trim(), dark: dark.trim() };
 }
 
 /** An agave rosette: long pointed leaves radiating up from a base point. */

@@ -4,12 +4,12 @@ import Image from "next/image";
 // arch-topped windows. Each row's set is repeated twice so the CSS loop (-50%) is seamless.
 // `pos` keeps faces in frame when the landscape photo is cropped to a tall window.
 const ROW_A = [
-  { src: "slide", pos: "50% 40%" }, { src: "speaker-a", pos: "50% 30%" }, { src: "sisters", pos: "50% 25%" },
-  { src: "food", pos: "50% 50%" }, { src: "trio", pos: "50% 25%" }, { src: "stage", pos: "50% 55%" },
+  { src: "reel-tent", pos: "50% 40%" }, { src: "reel-speaker", pos: "50% 25%" },
+  { src: "gallery-session", pos: "50% 50%" }, { src: "reel-slide", pos: "50% 25%" }, { src: "reel-sisters", pos: "50% 55%" },
 ];
 const ROW_B = [
-  { src: "portrait", pos: "50% 30%" }, { src: "speaker-b", pos: "50% 30%" }, { src: "spread", pos: "50% 55%" },
-  { src: "friends", pos: "50% 25%" }, { src: "speaker-d", pos: "62% 35%" }, { src: "crowd", pos: "50% 60%" },
+  { src: "reel-welcome", pos: "50% 30%" }, { src: "reel-speaker-2", pos: "50% 30%" }, { src: "reel-lawn", pos: "50% 55%" },
+  { src: "reel-bazaar", pos: "50% 25%" }, { src: "reel-audience", pos: "62% 35%" }, { src: "gallery-booth", pos: "50% 55%" },
 ];
 
 function Row({ id, photos }: { id: "a" | "b"; photos: typeof ROW_A }) {
@@ -19,7 +19,7 @@ function Row({ id, photos }: { id: "a" | "b"; photos: typeof ROW_A }) {
       <div className="reel-track">
         {doubled.map((p, i) => (
           <div key={i} className="reel-card">
-            <Image src={`/photos/${p.src}.jpg`} alt="" width={420} height={560} sizes="250px" style={{ objectPosition: p.pos }} priority={i < 3} />
+            <Image src={`/photos/${p.src}.webp`} alt="" width={420} height={560} sizes="250px" style={{ objectPosition: p.pos }} priority={i < 3} />
           </div>
         ))}
       </div>

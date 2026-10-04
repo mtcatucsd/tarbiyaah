@@ -1,7 +1,7 @@
 import Image from "next/image";
 import type { CSSProperties } from "react";
 
-// The hanging lantern artwork (public/art/lantern.png, recoloured to the ink).
+// The hanging lantern artwork (public/art/lantern.webp, recoloured to the ink).
 export const LANTERN_ASPECT = 226 / 110;
 
 /**
@@ -18,7 +18,7 @@ export function SwingingLantern({ left, top, w, cord, delay = 0 }: { left: numbe
     >
       <span className="lantern-cord" style={{ height: cord }} />
       <span className="lantern-light" style={{ top: cord + h * 0.3, left: w * 0.2, width: w * 0.6, height: h * 0.42 }} />
-      <Image src="/art/lantern.png" alt="" width={110} height={226} className="absolute left-0" style={{ top: cord, width: w, height: h }} />
+      <Image src="/art/lantern.webp" alt="" width={110} height={226} className="absolute left-0" style={{ top: cord, width: w, height: h }} />
     </div>
   );
 }

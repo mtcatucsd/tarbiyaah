@@ -1,13 +1,11 @@
 import Image from "next/image";
 import { GeiselScene } from "@/components/site/hero/geisel-scene";
-import { ticketHref } from "@/lib/format";
+import { ticketLink } from "@/lib/format";
 import { siteConfig } from "@/lib/site-config";
 
-// Quiet Edition's closing, merged with tickets and the footer: a statement and the tickets pill over the
-// engraved Geisel landscape, which stands right on the band of ink that holds the fine print and links.
+// Quiet Edition's closing, merged with tickets and the footer: a statement and the tickets pill over the engraved
+// Geisel landscape, which stands right on the band of ink that holds the fine print and links.
 export function Closing() {
-  const href = ticketHref(siteConfig.ticketUrl);
-  const external = href.startsWith("http") ? { target: "_blank", rel: "noopener noreferrer" } : {};
   const { contact } = siteConfig;
   const icon = "grid size-10 place-items-center rounded-full border border-paper/30 transition-colors hover:bg-paper/15";
   return (
@@ -16,8 +14,8 @@ export function Closing() {
         <p data-focus="" className="qe-lead-sm max-w-[18em]">
           Seats are limited. Reserve yours, and bring a friend who could use the reminder.
         </p>
-        <p className="qe-body">Registration happens on our Typeform. Early-bird pricing while it lasts.</p>
-        <a href={href} className="qe-pill" {...external}>Get tickets</a>
+        <p className="qe-body">Registration happens on Luma. Early-bird pricing while it lasts.</p>
+        <a className="qe-pill" {...ticketLink(siteConfig.ticketUrl)}>Get tickets</a>
       </div>
 
       {/* Pulled down by the strip below the drawing's ground line, so the buildings stand on the footer. */}

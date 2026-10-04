@@ -5,10 +5,18 @@ import { Plant, type PlantSpec } from "@/components/engraving/plant";
 import { SIDE, sideParts, sidePlants } from "@/components/engraving/scene";
 import { Reveal } from "@/components/site/reveal";
 
+// Palms and undergrowth either side of Geisel Library, used twice:
+//  - `photo`: the foot of the hero. Geisel is a photo (public/art/geisel-photo.webp: Wikimedia Commons "Geisel Library on
+//    Clear Day", CC0, cut out and recoloured to the hero's teal/cream duotone, its legs fading into the undergrowth),
+//    and the plants are cream on teal ("night" sprite).
+//  - otherwise: the closing scene above the footer, with the engraved Geisel and ink-on-cream plants.
+// The three drawings share one height (--sky-h) and the middle one (Geisel) is rendered smaller (--geisel-w, see
+// globals.css), so the palms and undergrowth beside it are visible on every screen size.
 const geisel = geiselParts();
 const B = GEISEL_BOUNDS;
+const PHOTO = { w: 560, h: 560 / (1472 / 810) }; // in the drawing's units: centred, legs fading at y = 0
 
-// In Geisel's own units (ground at y = 0, centred on x = 0), mirrored either side.
+// Undergrowth in front of the building's base, spilling past its frame so the planting meets and overlaps it.
 const BASE_PLANTING: PlantSpec[] = [-1, 1].flatMap((side) => [
   { kind: "grow", x: side * 218, base: 2, h: 74, variant: side < 0 ? 2 : 0, flip: side > 0 },
   { kind: "grow", x: side * 322, base: 2, h: 92, variant: side < 0 ? 0 : 1, flip: side < 0 },
@@ -26,29 +34,20 @@ function Side({ side, night }: { side: "left" | "right"; night?: boolean }) {
       <g className="hatch-in" style={{ "--d": 5 } as CSSProperties}>
         {sidePlants(side).map((p, i) => <Plant key={i} {...p} night={night} />)}
       </g>
-      <EtchGroup parts={sideParts(side)} night={night} />
+      <EtchGroup parts={sideParts(side)} />
     </svg>
   );
 }
 
-// Geisel Library with palms and undergrowth either side: engraved for the closing scene above the footer,
-// and with `photo` (no drawing animation) at the foot of the hero.
-// On wide screens the three drawings share one height (--sky-h), so they share one scale.
-// On phones Geisel takes most of the width and the landscapes drop to a shorter band beside it,
-// so the building reads larger than the trees.
-// The colour-matched Geisel photo (public/art/geisel-photo.webp: Wikimedia Commons "Geisel Library on Clear Day",
-// CC0, cut out and recoloured to the hero's duotone), placed in the drawing's units: centred, legs fading at y = 0.
-const PHOTO = { w: 560, h: 560 / (1472 / 810) };
-
-export function GeiselScene({ night, photo }: { night?: boolean; photo?: boolean }) {
+export function GeiselScene({ photo }: { photo?: boolean }) {
   return (
     <Reveal fade={false} className="flex h-[var(--sky-h)] items-end justify-center">
-      <Side side="left" night={night} />
+      <Side side="left" night={photo} />
       <svg
         viewBox={`${B.x} ${B.y} ${B.w} ${B.h}`}
         preserveAspectRatio="xMidYMax meet"
         className="geisel h-full shrink-0"
-        style={{ width: `min(calc(var(--sky-h) * ${B.w / B.h}), var(--geisel-max-w, 100%))`, overflow: "visible" }}
+        style={{ width: "var(--geisel-w)", overflow: "visible" }}
       >
         {photo ? (
           <image
@@ -61,14 +60,13 @@ export function GeiselScene({ night, photo }: { night?: boolean; photo?: boolean
             style={{ "--d": 1 } as CSSProperties}
           />
         ) : (
-          <EtchGroup parts={geisel} night={night} />
+          <EtchGroup parts={geisel} />
         )}
-        {/* Undergrowth in front of the building's base, spilling past its frame, so the planting meets and overlaps Geisel. */}
         <g className="hatch-in" style={{ "--d": 6 } as CSSProperties}>
-          {BASE_PLANTING.map((p, i) => <Plant key={i} {...p} night={night} />)}
+          {BASE_PLANTING.map((p, i) => <Plant key={i} {...p} night={photo} />)}
         </g>
       </svg>
-      <Side side="right" night={night} />
+      <Side side="right" night={photo} />
     </Reveal>
   );
 }
