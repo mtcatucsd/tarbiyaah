@@ -6,7 +6,7 @@ import { Reveal } from "@/components/site/reveal";
 import { siteConfig } from "@/lib/site-config";
 import { cn } from "@/lib/utils";
 
-/** A full-screen block holding one centred statement that comes into focus as it rises. */
+/** A block holding one centred statement that comes into focus as it rises. */
 export function Statement({ id, small, children }: { id?: string; small?: boolean; children: ReactNode }) {
   return (
     <section id={id} className="qe-block">
@@ -15,15 +15,18 @@ export function Statement({ id, small, children }: { id?: string; small?: boolea
   );
 }
 
-/** An engraved illustration over a short paragraph, pinned while the page scrolls past it. */
+/** Vignettes sit side by side on wide screens and stack on phones. */
+export function VignetteRow({ children }: { children: ReactNode }) {
+  return <section className="qe-vignette-row">{children}</section>;
+}
+
+/** An engraved illustration over a short paragraph. */
 export function Vignette({ art, label, children }: { art: ReactNode; label?: string; children: ReactNode }) {
   return (
-    <section className="qe-vignette" aria-label={label}>
-      <div className="stick">
-        <Reveal className="w-[clamp(200px,20vw,380px)]">{art}</Reveal>
-        <p data-focus="" className="qe-body">{children}</p>
-      </div>
-    </section>
+    <div className="qe-vignette-item" role="group" aria-label={label}>
+      <Reveal className="w-[clamp(150px,16vw,240px)]">{art}</Reveal>
+      <p data-focus="" className="qe-body">{children}</p>
+    </div>
   );
 }
 
@@ -42,7 +45,7 @@ export function SymbolArt({ id, box, className }: { id: string; box: Box; classN
 export function Facts() {
   return (
     <section className="qe-block" aria-label="When and where">
-      <div className="grid justify-items-center gap-10">
+      <div className="grid justify-items-center gap-6">
         <p data-focus="" className="qe-lead">
           {siteConfig.dateText}. Twelve to eight, in the Multipurpose Room at UC San Diego.
         </p>
@@ -64,7 +67,7 @@ const pillars = [
 /** Four staggered pillars, after Quiet Edition's four days. */
 export function Pillars() {
   return (
-    <section id="about" className="qe-section grid justify-items-center gap-14 pb-24">
+    <section id="about" className="qe-section grid justify-items-center gap-8 pb-4 md:gap-10 md:pb-6">
       <p data-focus="" className="qe-lead-sm">
         The day is shaped by three formats and one purpose: to leave with knowledge you can act upon.
       </p>
@@ -89,8 +92,8 @@ export function LanternBand() {
   for (let i = 0; i < xs.length; i++) cord += sag(i ? xs[i - 1] : 0, xs[i]);
   cord += sag(xs.at(-1)!, 1240);
   return (
-    <section className="grid justify-items-center gap-6 py-12" aria-label="Lanterns">
-      <Reveal fade={false} className="relative h-[210px] w-full overflow-hidden">
+    <section className="grid justify-items-center gap-4 py-2 md:py-4" aria-label="Lanterns">
+      <Reveal fade={false} className="relative h-[160px] w-full overflow-hidden md:h-[200px]">
         <svg viewBox="0 0 1240 210" preserveAspectRatio="none" className="absolute inset-0 size-full" aria-hidden="true">
           <path d={cord} pathLength={1} className="etch etch-hair draw" />
         </svg>

@@ -1,4 +1,4 @@
-export type Hatch = "hatch-light" | "hatch-mid" | "hatch-dense" | "hatch-h" | "crosshatch" | "stipple";
+export type Hatch = "hatch-light" | "hatch-mid" | "hatch-dense" | "hatch-h" | "crosshatch";
 export type Weight = "hair" | "line" | "bold";
 
 /** One engraved shape: an outline that draws itself, optionally over a paper fill and a hatched fill. */

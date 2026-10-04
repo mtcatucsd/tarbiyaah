@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
-  directionsUrls, formatTimeRange, getVenue, hasMultipleDays, mapEmbedUrl,
+  directionsUrl, formatTimeRange, getVenue, hasMultipleDays, mapEmbedUrl,
   roomLabel, sessionsForDay,
 } from "@/lib/event-data";
 import { sessions } from "@/data/sessions";
@@ -43,12 +43,12 @@ describe("sessionsForDay", () => {
 });
 
 
-describe("directionsUrls", () => {
+describe("directionsUrl", () => {
   it("builds walking directions by latitude,longitude", () => {
     const [lng, lat] = ssc.coordinates;
-    const { google, apple } = directionsUrls(ssc);
-    expect(google).toContain(`destination=${lat},${lng}`);
-    expect(apple).toContain(`daddr=${lat},${lng}`);
+    const url = directionsUrl(ssc);
+    expect(url).toContain("google.com/maps/dir");
+    expect(url).toContain(`destination=${lat},${lng}`);
   });
 });
 

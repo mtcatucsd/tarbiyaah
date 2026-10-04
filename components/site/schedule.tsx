@@ -5,10 +5,9 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { sessions } from "@/data/sessions";
 import type { Session } from "@/data/types";
-import { venues } from "@/data/venues";
 import { useInView } from "@/hooks/use-in-view";
 import { useScrollProgress } from "@/hooks/use-scroll-progress";
-import { formatTimeRange, getVenue, hasMultipleDays, roomLabel, sessionsForDay } from "@/lib/event-data";
+import { formatTimeRange, hasMultipleDays, sessionsForDay } from "@/lib/event-data";
 import { siteConfig } from "@/lib/site-config";
 
 const days = ([1, 2] as const).filter((d) => sessions.some((s) => s.day === d));
@@ -31,7 +30,6 @@ function Medallion() {
 function Stop({ session, side }: { session: Session; side: "left" | "right" }) {
   const { ref: cardRef, inView } = useInView<HTMLDivElement>(0.3);
   const { ref: nodeRef, progress } = useScrollProgress<HTMLSpanElement>();
-  const venue = getVenue(venues, session.venueId)!;
   return (
     // The node's own progress passes 0.5 when the viewport middle (the end of the inked line) crosses its centre.
     <li className="spine-stop" data-side={side} data-passed={progress >= 0.5}>
@@ -45,13 +43,9 @@ function Stop({ session, side }: { session: Session; side: "left" | "right" }) {
           <span className="mono-label">{formatTimeRange(session.start, session.end, siteConfig.timeZone)}</span>
           <span className="mono-label">MPR</span>
         </CardHeader>
-        <CardContent className="grid gap-2 px-4 py-5">
+        <CardContent className="grid gap-1.5 px-4 py-4">
           <h3 className="font-display text-2xl leading-tight text-ink-deep">{session.title}</h3>
           <p className="font-mono text-sm leading-7 text-muted-foreground">{session.description}</p>
-          <p className="mono-label">{roomLabel(venue, session.roomId)}</p>
-          <a href="#find-us" className="mono-label !text-blue underline-offset-4 hover:underline">
-            Find the MPR →
-          </a>
         </CardContent>
       </Card>
     </li>
@@ -66,7 +60,7 @@ function Spine({ day }: { day: 1 | 2 }) {
       <span aria-hidden="true" className="spine-line" />
       <span aria-hidden="true" className="spine-line spine-fill" />
       <div className="spine-cap"><Medallion /></div>
-      <ol className="grid gap-10 py-6">
+      <ol className="grid gap-5 py-3">
         {sessionsForDay(sessions, day).map((s, i) => (
           <Stop key={s.id} session={s} side={i % 2 === 0 ? "left" : "right"} />
         ))}
@@ -79,7 +73,7 @@ function Spine({ day }: { day: 1 | 2 }) {
 export function Schedule() {
   return (
     <Section id="schedule">
-      <div className="mb-14 grid justify-items-center gap-3 text-center">
+      <div className="mb-8 grid justify-items-center gap-3 text-center">
         <p className="mono-label">Schedule</p>
         <h2 data-focus="" className="qe-lead">The day at a glance</h2>
         <p className="qe-body">{siteConfig.dateText} · {siteConfig.timeText} · {siteConfig.venueText}</p>

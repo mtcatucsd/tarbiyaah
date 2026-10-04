@@ -8,7 +8,7 @@ const tilts = ["-rotate-2", "rotate-1", "-rotate-1", "rotate-2"];
 
 export function Speakers() {
   return (
-    <section id="speakers" className="qe-section grid justify-items-center gap-14">
+    <section id="speakers" className="qe-section grid justify-items-center gap-8">
       <div className="grid justify-items-center gap-3">
         <p className="mono-label">Speakers</p>
         <h2 data-focus="" className="qe-lead">Voices of the conference</h2>

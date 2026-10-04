@@ -9,8 +9,8 @@ export function useInView<T extends Element>(threshold = 0.15) {
     const el = ref.current;
     if (!el) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches || !("IntersectionObserver" in window)) {
-      setInView(true);
-      return;
+      const id = requestAnimationFrame(() => setInView(true)); // next frame, not synchronously inside the effect
+      return () => cancelAnimationFrame(id);
     }
     const observer = new IntersectionObserver(([entry]) => {
       if (entry.isIntersecting) {

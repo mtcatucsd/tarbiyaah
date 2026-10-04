@@ -9,7 +9,7 @@ const items = [
   },
   {
     q: "How do I get a ticket?",
-    a: "Use the Get tickets button. It opens our Typeform, where you register and pay. Early-bird pricing is available, and you can enter a promo code at checkout.",
+    a: "Use the Get tickets button. It opens our Luma event page, where you register. Early-bird pricing is available, and you can enter a promo code at checkout.",
   },
   {
     q: "Will I get a confirmation?",
@@ -27,7 +27,7 @@ const items = [
 
 export function Faq() {
   return (
-    <section id="faq" className="qe-section grid justify-items-center gap-12">
+    <section id="faq" className="qe-section grid justify-items-center gap-8">
       <div className="grid justify-items-center gap-3">
         <p className="mono-label">FAQ</p>
         <h2 data-focus="" className="qe-lead">Common questions</h2>

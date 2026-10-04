@@ -30,21 +30,21 @@ export function Hero() {
           MSA at UC San Diego presents
         </p>
         <HeroTitle />
-        <p className="intro text-[clamp(1.05rem,2vw,1.5rem)] text-[#f4efe3]/90" style={{ "--at": "2.3s" } as React.CSSProperties}>
+        <p className="intro text-[clamp(1.05rem,2vw,1.5rem)] text-[#f4efe3]/90" style={{ "--at": "1.0s" } as React.CSSProperties}>
           {siteConfig.tagline}
         </p>
-        <p className="intro mono-label !text-[#e9e2cc]/80" style={{ "--at": "2.5s" } as React.CSSProperties}>
+        <p className="intro mono-label !text-[#e9e2cc]/80" style={{ "--at": "1.15s" } as React.CSSProperties}>
           <span className="block sm:inline">{siteConfig.dateText}</span>
           <span className="hidden sm:inline"> · </span>
           <span className="block sm:inline">{siteConfig.timeText} · MPR</span>
         </p>
-        <div className="intro" style={{ "--at": "2.7s" } as React.CSSProperties}>
+        <div className="intro" style={{ "--at": "1.3s" } as React.CSSProperties}>
           <TicketButton className="!bg-gold-bright !text-[#10343a] hover:!bg-[#f4efe3]">Get tickets</TicketButton>
         </div>
       </div>
 
       <div className="pointer-events-none absolute inset-x-0 bottom-0 z-[2]" aria-hidden="true">
-        <GeiselScene night photo />
+        <GeiselScene photo />
       </div>
       <HeroMotion />
     </section>

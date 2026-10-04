@@ -17,7 +17,7 @@ export const metadata: Metadata = {
 // Without JS nothing may stay hidden: show revealed content, drawn strokes and all tab panels.
 const noscriptCss =
   "[data-reveal]{opacity:1!important;transform:none!important}" +
-  ".draw,.draw-abs{stroke-dashoffset:0!important}.hatch-in{opacity:1!important}[data-focus]{filter:none!important;opacity:1!important}" +
+  ".draw{stroke-dashoffset:0!important}.hatch-in{opacity:1!important}[data-focus]{filter:none!important;opacity:1!important}" +
   ".spine-fill{transform:translateX(-50%)!important}" +
   ".spine-node{background:var(--ink)!important}.spine-connector{border-color:var(--ink)!important}" +
   ".intro{opacity:1!important;transform:none!important}.night-reel-wrap{opacity:1!important}.glyph{stroke-dashoffset:0!important;fill-opacity:1!important}" +
