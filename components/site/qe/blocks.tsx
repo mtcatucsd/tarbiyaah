@@ -1,34 +1,9 @@
-import type { CSSProperties, ReactNode } from "react";
 import { Countdown } from "@/components/site/hud/countdown";
 import { SwingingLantern } from "@/components/engraving/lantern";
 import { PLANT_SPRITE } from "@/components/engraving/plant";
-import { Reveal } from "@/components/site/reveal";
 import { siteConfig } from "@/lib/site-config";
+import { PALM_BOX } from "@/components/engraving/flora";
 import { cn } from "@/lib/utils";
-
-/** A block holding one centred statement that comes into focus as it rises. */
-export function Statement({ id, small, children }: { id?: string; small?: boolean; children: ReactNode }) {
-  return (
-    <section id={id} className="qe-block">
-      <p data-focus="" className={small ? "qe-lead-sm" : "qe-lead"}>{children}</p>
-    </section>
-  );
-}
-
-/** Vignettes sit side by side on wide screens and stack on phones. */
-export function VignetteRow({ children }: { children: ReactNode }) {
-  return <section className="qe-vignette-row">{children}</section>;
-}
-
-/** An engraved illustration over a short paragraph. */
-export function Vignette({ art, label, children }: { art: ReactNode; label?: string; children: ReactNode }) {
-  return (
-    <div className="qe-vignette-item" role="group" aria-label={label}>
-      <Reveal className="w-[clamp(150px,16vw,240px)]">{art}</Reveal>
-      <p data-focus="" className="qe-body">{children}</p>
-    </div>
-  );
-}
 
 type Box = { x: number; y: number; w: number; h: number };
 
@@ -41,45 +16,28 @@ export function SymbolArt({ id, box, className }: { id: string; box: Box; classN
   );
 }
 
-/** Date, time and place as one statement, with a quiet countdown underneath. */
-export function Facts() {
+/** The crucial info, first: title and theme, date and place, a countdown, then one paragraph on the theme. */
+export function Intro() {
   return (
-    <section className="qe-block" aria-label="When and where">
-      <div className="grid justify-items-center gap-6">
-        <p data-focus="" className="qe-lead">
-          {siteConfig.dateText}. Twelve to eight, in the Multipurpose Room at UC San Diego.
-        </p>
-        <div data-focus="" className="w-[min(420px,88vw)] text-ink-deep">
+    <section id="about" data-curtain="" className="qe-section">
+      <div className="curtain-inner grid justify-items-center gap-6 md:gap-7">
+        <div className="grid justify-items-center gap-3">
+          <p className="mono-label">{siteConfig.name} {siteConfig.year}</p>
+          <h2 data-anim="lines" className="qe-lead max-w-[16em]">Ibad al-Rahman: Servants of the Most Merciful</h2>
+          <p data-anim="lines" className="font-display text-[clamp(1.25rem,2.4vw,1.75rem)] leading-snug text-ink">
+            {siteConfig.dateText} · {siteConfig.timeText}
+            <span className="block sm:inline"><span className="hidden sm:inline"> · </span>MPR, Student Services Center, UC San Diego</span>
+          </p>
+        </div>
+        <div data-anim="draw" className="w-[min(420px,88vw)] text-ink-deep">
           <Countdown target={siteConfig.eventDate} />
         </div>
+        <div data-scene="palm" className="w-[clamp(110px,12vw,160px)]">
+          <SymbolArt id="palm-0" box={PALM_BOX} />
+        </div>
+        {/* Placeholder: replace with the co-heads' own description of the theme. */}
+        <p data-anim="rise" className="qe-body max-w-[36em]">{siteConfig.themeDescription}</p>
       </div>
-    </section>
-  );
-}
-
-const pillars = [
-  { title: "Lectures", sub: "Knowledge", text: "Talks on the traits of Ibad al-Rahman, as revealed in the Quran." },
-  { title: "Workshops", sub: "Practice", text: "Small rooms for turning what we learn into habits we keep." },
-  { title: "Panels", sub: "Conversation", text: "Speakers in dialogue, and your questions in the room." },
-  { title: "Community", sub: "Reflection", text: "A space for brothers and sisters to reflect together." },
-];
-
-/** Four staggered pillars, after Quiet Edition's four days. */
-export function Pillars() {
-  return (
-    <section id="about" className="qe-section grid justify-items-center gap-8 pb-4 md:gap-10 md:pb-6">
-      <p data-focus="" className="qe-lead-sm">
-        The day is shaped by three formats and one purpose: to leave with knowledge you can act upon.
-      </p>
-      <ul className="grid grid-cols-2 gap-x-6 gap-y-12 md:grid-cols-4 md:gap-7">
-        {pillars.map((p, i) => (
-          <li key={p.title} data-focus="" className={cn("grid max-w-[220px] content-start gap-2", i % 2 === 1 && "md:mt-10")}>
-            <h3 className="font-display text-[clamp(1.5rem,2vw,1.9rem)] uppercase leading-none tracking-tight text-ink-deep">{p.title}</h3>
-            <em className="font-display text-lg text-ink">{p.sub}</em>
-            <p className="text-sm leading-snug text-ink-deep/85">{p.text}</p>
-          </li>
-        ))}
-      </ul>
     </section>
   );
 }
@@ -92,18 +50,17 @@ export function LanternBand() {
   for (let i = 0; i < xs.length; i++) cord += sag(i ? xs[i - 1] : 0, xs[i]);
   cord += sag(xs.at(-1)!, 1240);
   return (
-    <section className="grid justify-items-center gap-4 py-2 md:py-4" aria-label="Lanterns">
-      <Reveal fade={false} className="relative h-[160px] w-full overflow-hidden md:h-[200px]">
-        <svg viewBox="0 0 1240 210" preserveAspectRatio="none" className="absolute inset-0 size-full" aria-hidden="true">
-          <path d={cord} pathLength={1} className="etch etch-hair draw" />
+    <section className="grid justify-items-center py-2 md:py-4" aria-label="Lanterns">
+      <div data-scene="lanterns" className="relative h-[160px] w-full overflow-hidden md:h-[200px]">
+        <svg viewBox="0 0 1240 210" preserveAspectRatio="none" className="lantern-cordline absolute inset-0 size-full" aria-hidden="true">
+          <path d={cord} className="etch etch-hair" />
         </svg>
-        <div className="hatch-in" style={{ "--d": 3 } as CSSProperties}>
-          {xs.map((x, i) => (
-            <SwingingLantern key={x} left={`${(x / 1240) * 100}%`} top={18} cord={8 + (i % 2) * 14} w={i % 2 ? 58 : 68} delay={-i * 1.7} />
-          ))}
-        </div>
-      </Reveal>
-      <p data-focus="" className="font-display text-xl text-ink-deep">One day, unhurried. Here is how it unfolds.</p>
+        {xs.map((x, i) => (
+          <div key={x} className="lantern-drop absolute inset-0">
+            <SwingingLantern left={`${(x / 1240) * 100}%`} top={18} cord={8 + (i % 2) * 14} w={i % 2 ? 58 : 68} delay={-i * 1.7} />
+          </div>
+        ))}
+      </div>
     </section>
   );
 }

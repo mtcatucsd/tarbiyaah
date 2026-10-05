@@ -1,40 +1,110 @@
+"use client";
 import Image from "next/image";
+import { useEffect, useRef, useState, type CSSProperties, type PointerEvent } from "react";
+import { parallaxShift } from "@/lib/format";
 
-// Gallery as a Framer-style Ticker: one row of last year's photos in arch-topped frames, gliding sideways in a
-// seamless loop (paused on hover, faded at both edges). Kept short so people pass it quickly on the way to tickets.
-// The set is repeated three times and the track moves by one set, so the loop never shows a gap on wide screens.
-// Every photo is shown whole: the row has one fixed height and each card takes its photo's own proportions,
-// so nothing is cropped. With reduced motion the row stays still and can be swiped sideways instead.
+// Gallery as a parallax carousel (after Framer's Parallax Carousel): one row of tall cards that moves only when you
+// swipe, scroll, drag or use the arrows. Each photo is twice its card's width and slides against the card's offset
+// from the centre of the row, so it drifts inside its frame. The work runs only while the row moves, and only on
+// `transform`. With reduced motion the photos stay still at their focal point.
+// `fx` is where the visible window sits across the photo's spare width (0 = left edge, 1 = right edge); keep it
+// between 0.15 and 0.85 so the parallax never runs out of photo.
 const photos = [
-  { src: "gallery-stage", w: 960, h: 640, alt: "A speaker on stage beneath The Art of Adab slide, facing a full audience" },
-  { src: "gallery-speakers", w: 960, h: 640, alt: "Three of last year's speakers smiling together in the lobby" },
-  { src: "gallery-booth", w: 960, h: 640, alt: "Attendees talking with exhibitors at a community booth" },
-  { src: "gallery-panel", w: 960, h: 640, alt: "Two speakers seated at a table on stage for a panel" },
-  { src: "gallery-session", w: 960, h: 640, alt: "A student at the lectern beneath the Session 1 slide" },
+  { src: "gallery-stage", fx: 0.55, alt: "A speaker on stage beneath The Art of Adab slide, facing a full audience" },
+  { src: "gallery-speakers", fx: 0.5, alt: "Three of last year's speakers smiling together in the lobby" },
+  { src: "gallery-booth", fx: 0.3, alt: "Attendees talking with exhibitors at a community booth" },
+  { src: "gallery-panel", fx: 0.76, alt: "Two speakers seated at a table on stage for a panel" },
+  { src: "gallery-session", fx: 0.4, alt: "A student at the lectern beneath the Session 1 slide" },
 ];
 
+const MAX_SHIFT = 0.15; // of a card's width
+
 export function Gallery() {
+  const row = useRef<HTMLUListElement>(null);
+  const drag = useRef<{ x: number; left: number; moved: boolean } | null>(null);
+  const [ends, setEnds] = useState({ start: true, end: false });
+
+  useEffect(() => {
+    const el = row.current;
+    if (!el) return;
+    const still = window.matchMedia("(prefers-reduced-motion: reduce)");
+    let frame = 0;
+    const update = () => {
+      frame = 0;
+      const view = el.getBoundingClientRect();
+      const center = view.left + view.width / 2;
+      if (!still.matches) {
+        for (const card of el.children as HTMLCollectionOf<HTMLElement>) {
+          const r = card.getBoundingClientRect();
+          const img = card.querySelector("img");
+          if (img) img.style.transform = `translate3d(${parallaxShift(r.left + r.width / 2, center, view.width, r.width * MAX_SHIFT)}px,0,0)`;
+        }
+      }
+      setEnds({ start: el.scrollLeft < 4, end: el.scrollLeft > el.scrollWidth - el.clientWidth - 4 });
+    };
+    const queue = () => { if (!frame) frame = requestAnimationFrame(update); };
+    update();
+    el.addEventListener("scroll", queue, { passive: true });
+    window.addEventListener("resize", queue);
+    return () => {
+      cancelAnimationFrame(frame);
+      el.removeEventListener("scroll", queue);
+      window.removeEventListener("resize", queue);
+    };
+  }, []);
+
+  const step = (dir: 1 | -1) => {
+    const el = row.current;
+    const card = el?.firstElementChild as HTMLElement | null;
+    if (el && card) el.scrollBy({ left: dir * (card.offsetWidth + parseFloat(getComputedStyle(el).columnGap || "0")), behavior: "smooth" });
+  };
+
+  // Mouse drag; touch and trackpads already scroll natively.
+  const down = (e: PointerEvent<HTMLUListElement>) => {
+    if (e.pointerType !== "mouse" || e.button !== 0) return;
+    drag.current = { x: e.clientX, left: e.currentTarget.scrollLeft, moved: false };
+    e.currentTarget.setPointerCapture(e.pointerId);
+    e.currentTarget.dataset.dragging = "";
+  };
+  const move = (e: PointerEvent<HTMLUListElement>) => {
+    const d = drag.current;
+    if (!d) return;
+    if (Math.abs(e.clientX - d.x) > 3) d.moved = true;
+    e.currentTarget.scrollLeft = d.left - (e.clientX - d.x);
+  };
+  const up = (e: PointerEvent<HTMLUListElement>) => {
+    if (!drag.current) return;
+    drag.current = null;
+    delete e.currentTarget.dataset.dragging; // snapping comes back on and settles the nearest card
+  };
+
+  const arrow = "grid size-11 place-items-center rounded-full border border-ink/30 text-ink-deep transition-colors outline-none hover:bg-ink-deep hover:text-paper focus-visible:ring-2 focus-visible:ring-ink-deep focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-35";
   return (
-    <section id="gallery" className="grid gap-4 py-4 md:gap-6 md:py-8" aria-label="Photos from last year's conference">
-      <p data-focus="" className="qe-lead-sm px-5 text-center">From last year&apos;s conference, The Art of Adab.</p>
-      <div className="ticker">
-        <ul className="ticker-track">
-          {[0, 1, 2].flatMap((copy) =>
-            photos.map((p, i) => (
-              <li key={`${copy}-${p.src}`} className="ticker-card" aria-hidden={copy > 0 ? "true" : undefined}>
-                <Image
-                  src={`/photos/${p.src}.webp`}
-                  alt={copy > 0 ? "" : p.alt}
-                  width={p.w}
-                  height={p.h}
-                  sizes="(max-width: 640px) 70vw, 420px"
-                  className="block h-full w-auto max-w-none"
-                  loading={copy === 0 && i < 4 ? "eager" : "lazy"}
-                />
-              </li>
-            )),
-          )}
-        </ul>
+    <section id="gallery" data-scene="gallery" className="grid overflow-x-clip gap-4 py-4 md:gap-6 md:py-8" aria-label="Photos from last year's conference">
+      <p data-anim="lines" className="qe-lead-sm px-5 text-center">From last year&apos;s conference, The Art of Adab.</p>
+      <ul ref={row} className="pcar" tabIndex={0} aria-label="Photo carousel" onPointerDown={down} onPointerMove={move} onPointerUp={up} onPointerCancel={up}>
+        {photos.map((p, i) => (
+          <li key={p.src} className="pcar-card" style={{ "--fx": p.fx } as CSSProperties}>
+            <Image
+              src={`/photos/${p.src}.webp`}
+              alt={p.alt}
+              width={960}
+              height={640}
+              sizes="(max-width: 640px) 140vw, 690px"
+              draggable={false}
+              className="pcar-img"
+              loading={i < 3 ? "eager" : "lazy"}
+            />
+          </li>
+        ))}
+      </ul>
+      <div className="flex justify-center gap-3">
+        <button type="button" className={arrow} onClick={() => step(-1)} disabled={ends.start} aria-label="Previous photo">
+          <svg viewBox="0 0 24 24" className="size-5" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true"><path d="M19 12H5m6-6-6 6 6 6" /></svg>
+        </button>
+        <button type="button" className={arrow} onClick={() => step(1)} disabled={ends.end} aria-label="Next photo">
+          <svg viewBox="0 0 24 24" className="size-5" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6" /></svg>
+        </button>
       </div>
     </section>
   );

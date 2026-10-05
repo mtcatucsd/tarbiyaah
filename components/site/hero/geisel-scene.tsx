@@ -3,7 +3,6 @@ import { EtchGroup } from "@/components/engraving/etch";
 import { GEISEL_BOUNDS, geiselParts } from "@/components/engraving/geisel";
 import { Plant, type PlantSpec } from "@/components/engraving/plant";
 import { SIDE, sideParts, sidePlants } from "@/components/engraving/scene";
-import { Reveal } from "@/components/site/reveal";
 
 // Palms and undergrowth either side of Geisel Library, used twice:
 //  - `photo`: the foot of the hero. Geisel is a photo (public/art/geisel-photo.webp: Wikimedia Commons "Geisel Library on
@@ -41,7 +40,7 @@ function Side({ side, night }: { side: "left" | "right"; night?: boolean }) {
 
 export function GeiselScene({ photo }: { photo?: boolean }) {
   return (
-    <Reveal fade={false} className="flex h-[var(--sky-h)] items-end justify-center">
+    <div data-anim="draw" className="flex h-[var(--sky-h)] items-end justify-center">
       <Side side="left" night={photo} />
       <svg
         viewBox={`${B.x} ${B.y} ${B.w} ${B.h}`}
@@ -67,6 +66,6 @@ export function GeiselScene({ photo }: { photo?: boolean }) {
         </g>
       </svg>
       <Side side="right" night={photo} />
-    </Reveal>
+    </div>
   );
 }

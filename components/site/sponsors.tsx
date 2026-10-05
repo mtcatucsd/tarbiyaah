@@ -6,8 +6,8 @@ import { cn } from "@/lib/utils";
 export function Sponsors() {
   return (
     <section id="sponsors" className="qe-section grid justify-items-center gap-8">
-      <p data-focus="" className="qe-lead-sm">With thanks to the sponsors who make the day possible.</p>
-      <ul className="grid w-full max-w-[880px] grid-cols-2 gap-5 md:grid-cols-4">
+      <p data-anim="lines" className="qe-lead-sm">With thanks to the sponsors who make the day possible.</p>
+      <ul data-anim="stagger" className="grid w-full max-w-[880px] grid-cols-2 gap-5 md:grid-cols-4">
         {sponsors.map((s) => (
           <li
             key={s.id}

@@ -94,24 +94,16 @@
   color: var(--muted-foreground);
 }
 
-/* ---------- reveal + stroke drawing (driven by data-in-view) ---------- */
-[data-reveal] {
-  opacity: 0; transform: translateY(18px);
-  transition: opacity 0.8s var(--ease-out-expo), transform 0.8s var(--ease-out-expo);
-  transition-delay: calc(var(--d, 0) * 90ms);
-}
-[data-reveal][data-in-view="true"] { opacity: 1; transform: none; }
-
-.draw {
-  stroke-dasharray: 1; stroke-dashoffset: 1;
-  transition: stroke-dashoffset 1.3s var(--ease-out-expo);
-  transition-delay: calc(var(--d, 0) * 0.12s + 0.1s);
-}
-[data-in-view="true"] .draw { stroke-dashoffset: 0; }
+/* ---------- stroke drawing (driven by data-in-view, set by the reveals scene) ---------- */
+/* Strokes and hatching are only hidden while motion is on (html.motion), so no-JS and reduced-motion pages show them. */
+.draw { stroke-dasharray: 1; stroke-dashoffset: 0; transition: stroke-dashoffset 1.3s var(--ease-out-expo); transition-delay: calc(var(--d, 0) * 0.12s + 0.1s); }
+html.motion .draw { stroke-dashoffset: 1; }
+html.motion [data-in-view="true"] .draw { stroke-dashoffset: 0; }
 /* Engraved strokes use non-scaling-stroke, so their dashes are measured in screen pixels and pathLength
    normalisation would cut long outlines short on big screens. Use a pixel length longer than any outline. */
-.etch.draw { stroke-dasharray: 6000; stroke-dashoffset: 6000; transition-duration: 1.9s; }
-[data-in-view="true"] .etch.draw { stroke-dashoffset: 0; }
+.etch.draw { stroke-dasharray: 6000; transition-duration: 1.9s; }
+html.motion .etch.draw { stroke-dashoffset: 6000; }
+html.motion [data-in-view="true"] .etch.draw { stroke-dashoffset: 0; }
 
 /* ---------- keyframe effects copied in spirit from torontotechweek.com ---------- */
 @keyframes glow { 0%, 100% { opacity: 0.35; } 50% { opacity: 1; } }
@@ -138,12 +130,9 @@
 .etch-ink { fill: var(--ink); }
 
 /* Hatching fades in after its outline has started drawing. */
-.hatch-in {
-  opacity: 0;
-  transition: opacity 0.8s var(--ease-out-expo);
-  transition-delay: calc(var(--d, 0) * 0.1s + 0.35s);
-}
-[data-in-view="true"] .hatch-in { opacity: 1; }
+.hatch-in { transition: opacity 0.8s var(--ease-out-expo); transition-delay: calc(var(--d, 0) * 0.1s + 0.35s); }
+html.motion .hatch-in { opacity: 0; }
+html.motion [data-in-view="true"] .hatch-in { opacity: 1; }
 
 /* A slow pendulum for lanterns and palm crowns (origin set inline, in the drawing's units). */
 @keyframes sway { 0%, 100% { transform: rotate(-1.6deg); } 50% { transform: rotate(1.6deg); } }
@@ -251,6 +240,19 @@
 .night-reel-wrap { opacity: 0; }
 .night[data-ready="true"] .night-reel-wrap { opacity: 1; transition: opacity 1.8s ease-out 0.1s; }
 
+/* Marquee into the closing (components/site/marquee.tsx): one line of large serif type between hairlines. */
+.marquee { overflow: hidden; border-block: 1px solid color-mix(in srgb, var(--ink) 30%, transparent); padding-block: clamp(0.6rem, 1.4vw, 1.1rem); }
+.marquee-track { display: flex; width: max-content; will-change: transform; }
+.marquee-copy { display: flex; gap: 0.6em; padding-right: 0.6em; font-size: clamp(2rem, 6vw, 4.5rem); line-height: 1.05; color: var(--ink-deep); white-space: nowrap; }
+.marquee-copy a { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 0.12em; }
+.marquee-copy a:hover, .marquee-copy a:focus-visible { color: var(--ink); }
+
+/* Ambient loops rest while their section is off screen (ambient scene). */
+[data-offscreen] .reel-track, [data-offscreen] .night-cloud, [data-offscreen] .lantern-swing, [data-offscreen] .lantern-light { animation-play-state: paused; }
+
+/* The line-reveal mask clips at the line box, which cuts descenders (g, y, p) in this tight serif; give it room. */
+.split-line-mask { padding-bottom: 0.2em; margin-bottom: -0.2em; }
+
 /* ---------- nav ---------- */
 /* The MSA logo (public/art/msa-logo.webp) as a mask, so it takes the bar's text colour: cream on the dark hero, teal on the cream bar. */
 .msa-logo-link { display: block; line-height: 0; }
@@ -258,56 +260,13 @@
   -webkit-mask: url(/art/msa-logo.webp) center / contain no-repeat; mask: url(/art/msa-logo.webp) center / contain no-repeat; }
 @media (min-width: 768px) { .msa-logo { height: 42px; } }
 
-/* ---------- schedule spine ---------- */
-/* --line-x: where the double line runs. --gap: node-to-card distance (the connector length). */
-.spine { --line-x: 20px; --gap: 1.5rem; position: relative; }
-@media (min-width: 768px) { .spine { --line-x: 50%; --gap: 2.5rem; } }
-
-/* Two stacked double lines: muted underneath, ink on top scaled to the scroll progress. */
-.spine-line {
-  position: absolute; top: 0; bottom: 0; left: var(--line-x); width: 7px;
-  border-inline: 1px solid var(--border); transform: translateX(-50%);
-}
-.spine-fill { border-color: var(--ink); transform: translateX(-50%) scaleY(var(--progress, 1)); transform-origin: top; }
-
-/* Start medallion and end cap, centred on the line. */
-.spine-cap { position: relative; height: 2rem; }
-.spine-cap > * { position: absolute; top: 0; left: var(--line-x); transform: translateX(-50%); }
-.spine-end {
-  top: auto; bottom: 0; width: 22px; height: 7px;
-  border: 1px solid var(--ink); border-radius: 999px; background: var(--background);
-}
-
-/* Cards: right of the line on phones; alternating halves on desktop. */
-.spine-card { margin-left: calc(var(--line-x) + var(--gap)); }
-@media (min-width: 768px) {
-  .spine-card { width: calc(50% - var(--gap)); }
-  [data-side="left"] > .spine-card { margin-left: 0; }
-}
-
-/* Node + connector sit in the card header (vertically centred on it) and reach back to the line.
-   The +1px crosses the card's own (transparent) 1px border. */
-.spine-connector {
-  position: absolute; top: 50%; right: 100%; width: calc(var(--gap) + 1px);
-  border-top: 1px solid var(--border); transition: border-color 0.3s;
-}
-.spine-node {
-  position: absolute; top: 50%; left: calc(-1 * (var(--gap) + 1px)); z-index: 1;
-  width: 14px; height: 14px; border: 1px solid var(--ink); border-radius: 999px;
-  background: var(--background); transform: translate(-50%, -50%); transition: background-color 0.3s;
-}
-@media (min-width: 768px) {
-  [data-side="left"] .spine-connector { right: auto; left: 100%; }
-  [data-side="left"] .spine-node { left: calc(100% + var(--gap) + 1px); }
-}
-[data-passed="true"] .spine-connector { border-color: var(--ink); }
-[data-passed="true"] .spine-node { background: var(--ink); }
-
-/* Card border drawn as an SVG rect over the card's 1px border (the card's own border stays transparent). */
-.spine-border {
-  x: 0.5px; y: 0.5px; width: calc(100% - 1px); height: calc(100% - 1px);
-  fill: none; stroke: var(--border); stroke-width: 1;
-}
+/* ---------- schedule: a printed menu (components/site/schedule.tsx) ---------- */
+.menu { display: grid; gap: clamp(1.1rem, 2.2vw, 1.6rem); max-width: 640px; margin-inline: auto; padding: 0; list-style: none; text-align: left; }
+.menu-line { display: flex; align-items: baseline; gap: 0.6rem; }
+.menu-title { font-size: clamp(1.4rem, 2.6vw, 1.9rem); font-weight: 400; line-height: 1.1; color: var(--ink-deep); }
+.menu-dots { flex: 1; min-width: 1.5rem; border-bottom: 2px dotted color-mix(in srgb, var(--ink) 45%, transparent); transform: translateY(-0.3em); }
+.menu-time { font-family: var(--font-mono); font-size: 0.8rem; letter-spacing: 0.1em; white-space: nowrap; color: var(--ink); }
+.menu-summary { margin-top: 0.3rem; font-size: 0.95rem; line-height: 1.45; color: color-mix(in srgb, var(--ink-deep) 75%, transparent); }
 
 /* ---------- speaker portrait (arch + star tint) ---------- */
 .portrait {
@@ -337,7 +296,6 @@
 }
 .qe-block { display: grid; place-items: center; padding: 3rem var(--gutter, 1.25rem); text-align: center; }
 .qe-section { padding: 3rem var(--gutter, 1.25rem); text-align: center; }
-[data-focus] { will-change: opacity; }
 
 /* Vignettes: an illustration over a short paragraph. Two sit side by side on wide screens, stacked on phones. */
 .qe-vignette-row { display: grid; gap: 2rem 3rem; padding: 2.5rem var(--gutter, 1.25rem); max-width: 1000px; margin-inline: auto; }
@@ -349,7 +307,6 @@
   .qe-block { padding: 2.25rem var(--gutter, 1.25rem); }
   .qe-section { padding: 2rem var(--gutter, 1.25rem); }
   .qe-vignette-row { gap: 1.5rem; padding: 1.5rem var(--gutter, 1.25rem); }
-  [data-reveal] { transform: translateY(10px); transition-duration: 0.45s; transition-delay: calc(var(--d, 0) * 50ms); }
 }
 
 /* Prints: off-white card with a thin border, soft shadow, slight tilt. */
@@ -367,20 +324,19 @@
 }
 .qe-pill:hover, .qe-pill:focus-visible { background: var(--ink-deep); color: var(--paper); }
 
-/* Gallery ticker (components/site/gallery.tsx): one seamless row, paused on hover, faded at the edges. */
-.ticker { overflow: hidden; -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent); mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent); }
-.ticker-track { --gap: clamp(14px, 1.6vw, 24px); display: flex; gap: var(--gap); width: max-content; list-style: none; padding: 6px 0 18px;
-  animation: ticker 48s linear infinite; will-change: transform; }
-.ticker:hover .ticker-track { animation-play-state: paused; }
-/* Three copies of the set; moving by one copy (a third, plus a third of a gap) makes the loop seamless. */
-@keyframes ticker { to { transform: translate3d(calc(-100% / 3 - var(--gap) / 3), 0, 0); } }
-.ticker-card { flex: none; height: clamp(150px, 20vw, 260px); border-radius: 14px; overflow: hidden;
+/* Gallery parallax carousel (components/site/gallery.tsx): tall cards from the left gutter that snap into place, faded at the edges.
+   Each photo is twice its card's width (3:2 photos in 3:4 cards), placed at its focal point (--fx); the script slides it. */
+.pcar { --card: min(70vw, 345px); --gap: clamp(14px, 1.6vw, 24px); display: flex; gap: var(--gap); list-style: none;
+  overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x mandatory; scrollbar-width: none;
+  --pad: clamp(16px, 4vw, 48px); padding: 6px var(--pad) 18px; scroll-padding-inline: var(--pad); cursor: grab; outline: none;
+  -webkit-mask-image: linear-gradient(90deg, #000 92%, transparent); mask-image: linear-gradient(90deg, #000 92%, transparent); }
+.pcar::-webkit-scrollbar { display: none; }
+.pcar[data-dragging] { cursor: grabbing; scroll-snap-type: none; user-select: none; }
+.pcar:focus-visible .pcar-card { outline: 2px solid var(--ink-deep); outline-offset: 3px; }
+.pcar-card { position: relative; flex: none; width: var(--card); aspect-ratio: 3 / 4; scroll-snap-align: start; border-radius: 14px; overflow: hidden;
   border: 2px solid var(--ink); box-shadow: 0 12px 26px -14px rgb(31 79 92 / 0.45); background: var(--paper-shade); }
-@media (prefers-reduced-motion: reduce) {
-  .ticker { overflow-x: auto; -webkit-mask-image: none; mask-image: none; scroll-snap-type: x mandatory; }
-  .ticker-track { animation: none; padding-inline: 20px; }
-  .ticker-card { scroll-snap-align: center; }
-}
+.pcar-img { position: absolute; top: 0; left: calc(-100% * var(--fx)); width: 200%; max-width: none; height: 100%; object-fit: cover; will-change: transform; }
+@media (max-width: 640px) { .pcar { -webkit-mask-image: none; mask-image: none; } }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {

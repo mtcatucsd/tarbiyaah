@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
-  directionsUrl, formatTimeRange, getVenue, hasMultipleDays, mapEmbedUrl,
+  directionsUrl, formatTime, formatTimeRange, getVenue, mapEmbedUrl,
   roomLabel, sessionsForDay,
 } from "@/lib/event-data";
 import { sessions } from "@/data/sessions";
@@ -73,14 +73,6 @@ describe("roomLabel", () => {
 });
 
 
-describe("hasMultipleDays", () => {
-  it("is false for the one-day programme and true when a second day exists", () => {
-    expect(hasMultipleDays(sessions)).toBe(false);
-    expect(hasMultipleDays([...sessions, { ...sessions[0], id: "extra", day: 2 }])).toBe(true);
-    expect(hasMultipleDays([])).toBe(false);
-  });
-});
-
 describe("mapEmbedUrl", () => {
   it("builds a key-free Google Maps embed that searches the venue by name, so Google pins its own building", () => {
     const url = new URL(mapEmbedUrl(ssc));
@@ -88,5 +80,21 @@ describe("mapEmbedUrl", () => {
     expect(url.searchParams.get("q")).toBe("Student Services Center, UC San Diego, La Jolla, CA");
     expect(url.searchParams.get("output")).toBe("embed");
     expect(Number(url.searchParams.get("z"))).toBeGreaterThanOrEqual(16);
+  });
+});
+
+describe("session summaries", () => {
+  it("every session has a one-line summary of 1–60 characters", () => {
+    for (const s of sessions) {
+      expect(s.summary.trim().length, s.id).toBeGreaterThan(0);
+      expect(s.summary.length, s.id).toBeLessThanOrEqual(60);
+    }
+  });
+});
+
+describe("formatTime", () => {
+  it("formats a start time in the event's time zone, like the schedule menu shows it", () => {
+    expect(formatTime("2026-11-01T12:00:00-08:00", "America/Los_Angeles")).toBe("12:00 PM");
+    expect(formatTime("2026-11-01T13:30:00-08:00", "America/Los_Angeles")).toBe("1:30 PM");
   });
 });

@@ -10,10 +10,11 @@ import { cn } from "@/lib/utils";
 // It sits on a paper strip so it stays legible over the hero's patterned arch.
 const links = [
   { href: "#about", label: "About" },
+  { href: "#find-us", label: "Find the MPR" },
   { href: "#schedule", label: "Schedule" },
   { href: "#speakers", label: "Speakers" },
-  { href: "#find-us", label: "Find the MPR" },
   { href: "#gallery", label: "Gallery" },
+  { href: "#sponsors", label: "Sponsors" },
   { href: "#faq", label: "FAQ" },
   { href: "#tickets", label: "Tickets" },
 ];
@@ -26,7 +27,9 @@ export function Nav() {
   useEffect(() => {
     const check = () => {
       setLifted(window.scrollY > 24);
-      setSolid(window.scrollY > Math.max(120, (document.getElementById("top")?.offsetHeight ?? 600) - 90));
+      // Cream once the theme section (just below the hero) reaches the bar; before that, over the hero.
+      const curtain = document.querySelector("[data-curtain]");
+      setSolid(curtain ? curtain.getBoundingClientRect().top <= 56 : window.scrollY > 120);
     };
     check();
     window.addEventListener("scroll", check, { passive: true });
