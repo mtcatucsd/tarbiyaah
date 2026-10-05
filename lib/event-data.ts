@@ -19,8 +19,14 @@ export function mapEmbedUrl(venue: Venue, zoom = 17) {
   return `https://www.google.com/maps?q=${q}&z=${zoom}&output=embed`;
 }
 
+const timeFormat = (timeZone: string) => new Intl.DateTimeFormat("en-US", { hour: "numeric", minute: "2-digit", timeZone });
+
+export function formatTime(iso: string, timeZone: string) {
+  return timeFormat(timeZone).format(new Date(iso));
+}
+
 export function formatTimeRange(start: string, end: string, timeZone: string) {
-  const fmt = new Intl.DateTimeFormat("en-US", { hour: "numeric", minute: "2-digit", timeZone });
+  const fmt = timeFormat(timeZone);
   return `${fmt.format(new Date(start))} – ${fmt.format(new Date(end))}`;
 }
 
@@ -28,9 +34,4 @@ export function roomLabel(venue: Venue, roomId: string) {
   const room = venue.rooms.find((r) => r.id === roomId);
   if (!room) return "";
   return room.floor === undefined ? room.name : `${room.name} · Floor ${room.floor}`;
-}
-
-// Day tabs and "Day N" labels only make sense when the programme spans more than one day.
-export function hasMultipleDays(sessions: Session[]): boolean {
-  return new Set(sessions.map((s) => s.day)).size > 1;
 }

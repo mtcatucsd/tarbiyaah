@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { countValue, splitTime, ticketHref, ticketLink } from "@/lib/format";
+import { countValue, parallaxShift, splitTime, ticketHref, ticketLink } from "@/lib/format";
 
 describe("splitTime", () => {
   it("breaks milliseconds into days/hours/minutes/seconds", () => {
@@ -45,5 +45,22 @@ describe("ticketLink", () => {
   it("scrolls to the tickets section while the link is empty", () => {
     expect(ticketLink("")).toEqual({ href: "#tickets" });
     expect(ticketLink(undefined)).toEqual({ href: "#tickets" });
+  });
+});
+
+describe("parallaxShift", () => {
+  it("is zero for a card centred in the view", () => {
+    expect(parallaxShift(500, 500, 1000, 60)).toBe(0);
+  });
+  it("moves the photo against the card's offset, in proportion to it", () => {
+    expect(parallaxShift(750, 500, 1000, 60)).toBe(-30);
+    expect(parallaxShift(250, 500, 1000, 60)).toBe(30);
+  });
+  it("never shifts further than the maximum", () => {
+    expect(parallaxShift(5000, 500, 1000, 60)).toBe(-60);
+    expect(parallaxShift(-5000, 500, 1000, 60)).toBe(60);
+  });
+  it("returns zero for an empty view", () => {
+    expect(parallaxShift(100, 0, 0, 60)).toBe(0);
   });
 });

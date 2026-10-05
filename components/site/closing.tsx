@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { GeiselScene } from "@/components/site/hero/geisel-scene";
+import { Marquee } from "@/components/site/marquee";
 import { ticketLink } from "@/lib/format";
 import { siteConfig } from "@/lib/site-config";
 
@@ -10,8 +11,9 @@ export function Closing() {
   const icon = "grid size-10 place-items-center rounded-full border border-paper/30 transition-colors hover:bg-paper/15";
   return (
     <section id="tickets" className="relative overflow-hidden">
+      <Marquee />
       <div className="qe-section grid justify-items-center gap-6 pb-10">
-        <p data-focus="" className="qe-lead-sm max-w-[18em]">
+        <p data-anim="lines" className="qe-lead-sm max-w-[18em]">
           Seats are limited. Reserve yours, and bring a friend who could use the reminder.
         </p>
         <p className="qe-body">Registration happens on Luma. Early-bird pricing while it lasts.</p>
@@ -19,7 +21,7 @@ export function Closing() {
       </div>
 
       {/* Pulled down by the strip below the drawing's ground line, so the buildings stand on the footer. */}
-      <div className="hero-vars relative z-0 mb-[calc(var(--ground-gap)*-1)]" aria-hidden="true">
+      <div data-scene="closing-scene" className="hero-vars relative z-0 mb-[calc(var(--ground-gap)*-1)]" aria-hidden="true">
         <GeiselScene />
       </div>
 

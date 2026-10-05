@@ -1,4 +1,3 @@
-import { Reveal } from "@/components/site/reveal";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { siteConfig } from "@/lib/site-config";
 
@@ -30,9 +29,9 @@ export function Faq() {
     <section id="faq" className="qe-section grid justify-items-center gap-8">
       <div className="grid justify-items-center gap-3">
         <p className="mono-label">FAQ</p>
-        <h2 data-focus="" className="qe-lead">Common questions</h2>
+        <h2 data-anim="lines" className="qe-lead">Common questions</h2>
       </div>
-      <Reveal className="w-full max-w-[720px] text-left">
+      <div data-scene="faq" className="w-full max-w-[720px] text-left">
         <Accordion type="single" collapsible className="border-t border-ink/20">
           {items.map((it, i) => (
             <AccordionItem key={it.q} value={`item-${i}`} className="border-ink/20">
@@ -41,7 +40,7 @@ export function Faq() {
             </AccordionItem>
           ))}
         </Accordion>
-      </Reveal>
+      </div>
     </section>
   );
 }

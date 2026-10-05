@@ -7,7 +7,7 @@ import { siteConfig } from "@/lib/site-config";
 
 // Opening night: a deep-teal scene in the spirit of last year's flyer. Layers, back to front: gradient and clouds,
 // the 2025 photo reel, a duotone tint (the cursor reveals true colour), a scrim and vignette, then the copy and
-// the same palms-and-undergrowth scene as the footer, with the colour-matched Geisel photo in the middle. HeroMotion adds the pointer, scroll and intro behaviour.
+// the same palms-and-undergrowth scene as the footer, with the colour-matched Geisel photo in the middle. HeroMotion adds the pointer and intro behaviour; its scroll exit is the hero scene (components/motion/scenes/hero.ts).
 export function Hero() {
   return (
     <section
@@ -25,7 +25,7 @@ export function Hero() {
       <div className="night-layer night-vignette" aria-hidden="true" />
       <div className="night-layer night-grain" aria-hidden="true" />
 
-      <div className="relative z-10 flex w-full max-w-[1500px] flex-col items-center gap-[clamp(0.6rem,2.4vh,1.6rem)]">
+      <div className="hero-copy relative z-10 flex w-full max-w-[1500px] flex-col items-center gap-[clamp(0.6rem,2.4vh,1.6rem)]">
         <p className="intro mono-label !text-[#e9e2cc] font-medium !tracking-[0.34em]" style={{ "--at": "0.35s" } as React.CSSProperties}>
           MSA at UC San Diego presents
         </p>
@@ -43,7 +43,7 @@ export function Hero() {
         </div>
       </div>
 
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 z-[2]" aria-hidden="true">
+      <div className="hero-ground pointer-events-none absolute inset-x-0 bottom-0 z-[2]" aria-hidden="true">
         <GeiselScene photo />
       </div>
       <HeroMotion />

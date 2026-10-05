@@ -35,7 +35,7 @@ Deploy size is roughly 2.6 MB: about 1 MB of images, 0.7 MB of JavaScript, 0.25 
 | What | Where |
 | --- | --- |
 | Event date, time, venue text, **ticket link**, contact, social links | `lib/site-config.ts` (paste the Luma event link into `ticketUrl`; while it is empty the buttons scroll to the tickets section) |
-| Schedule | `data/sessions.ts` |
+| Schedule | `data/sessions.ts` (each session has a one-line `summary` shown under its title) |
 | Speakers and bios | `data/speakers.ts` |
 | Sponsors | `data/sponsors.ts` (add a `logo` path under `public/` when you have one) |
 | Venue, directions, map | `data/venues.ts`, `lib/event-data.ts` |
@@ -69,6 +69,8 @@ tests/                  Vitest tests
   copies go in `public/`.
 - The hero reel is `components/site/hero/photo-reel.tsx` and the gallery is `components/site/gallery.tsx`. Give each
   gallery photo descriptive `alt` text.
+- Gallery photos must be **3:2 landscape** (e.g. 960 × 640): the carousel shows the middle of each one in a tall card
+  and slides it for the parallax. Set each photo's `fx` focal point (0.15–0.85) so faces and slides stay in frame.
 
 ## Design notes
 
@@ -79,8 +81,14 @@ tests/                  Vitest tests
   `node scripts/gen-title.mjs`, which rewrites `components/site/hero/title-paths.ts`.
 - **Engravings** (palms, undergrowth, the Geisel outline in the venue postcard) are drawn by code in
   `components/engraving/`, so they stay crisp at any size and weigh almost nothing.
-- **Motion:** everything animates with `transform` and `opacity` only. On phones the blur effects are replaced by
-  cheaper fades, and with `prefers-reduced-motion` or without JavaScript everything is shown fully drawn.
+- **Motion:** one system in `components/motion/`. `MotionRoot` (mounted in `app/page.tsx`) runs Lenis smooth
+  scrolling on desktop and the scenes in `components/motion/scenes/`, all on GSAP's single clock. Sections opt in with
+  attributes: `data-anim="lines"` (heading lines rise once), `"rise"`, `"stagger"`, `"draw"` (engravings draw
+  themselves), and `data-scene="…"` for a section's own scene. Timings and eases live in `components/motion/tokens.ts`.
+  Only `transform`, `opacity` and `clip-path` animate. Phones get a lighter version (no smooth scrolling, no scrubbed
+  depth, headings rise whole), and with `prefers-reduced-motion` or without JavaScript nothing is hidden or moves.
+- **Schedule:** a text-only menu: each session's title, a dotted leader and its start time, with the session's
+  `summary` from `data/sessions.ts` underneath (one line, at most 60 characters; a test checks it).
 
 ## Credits
 

@@ -1,5 +1,4 @@
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Reveal } from "@/components/site/reveal";
 import { speakers } from "@/data/speakers";
 import { cn } from "@/lib/utils";
 
@@ -11,11 +10,11 @@ export function Speakers() {
     <section id="speakers" className="qe-section grid justify-items-center gap-8">
       <div className="grid justify-items-center gap-3">
         <p className="mono-label">Speakers</p>
-        <h2 data-focus="" className="qe-lead">Voices of the conference</h2>
+        <h2 data-anim="lines" className="qe-lead">Voices of the conference</h2>
       </div>
-      <ul className="grid w-full max-w-[1100px] grid-cols-2 gap-x-6 gap-y-12 md:grid-cols-4">
+      <ul data-scene="speakers" className="grid w-full max-w-[1100px] grid-cols-2 gap-x-6 gap-y-12 md:grid-cols-4">
         {speakers.map((s, i) => (
-          <Reveal as="li" key={s.id} delay={i}>
+          <li key={s.id}>
             <Dialog>
               <DialogTrigger asChild>
                 <button type="button" className="group grid w-full justify-items-center gap-4 text-center">
@@ -34,7 +33,7 @@ export function Speakers() {
                 <p className="leading-7 text-ink-deep/85">{s.bio}</p>
               </DialogContent>
             </Dialog>
-          </Reveal>
+          </li>
         ))}
       </ul>
     </section>

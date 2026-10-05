@@ -17,6 +17,7 @@ export type Session = {
   id: string;
   title: string;
   description: string;
+  summary: string;     // one line for the timeline cards, at most 60 characters
   day: 1 | 2;
   start: string;       // ISO 8601 with offset
   end: string;

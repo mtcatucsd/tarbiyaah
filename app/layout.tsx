@@ -14,14 +14,10 @@ export const metadata: Metadata = {
   icons: { icon: "/msalogo.jpg" },
 };
 
-// Without JS nothing may stay hidden: show revealed content, drawn strokes and all tab panels.
+// Without JS nothing may stay hidden: the hero intro and title. (Scroll reveals only hide
+// things while html.motion is set, which needs JS.)
 const noscriptCss =
-  "[data-reveal]{opacity:1!important;transform:none!important}" +
-  ".draw{stroke-dashoffset:0!important}.hatch-in{opacity:1!important}[data-focus]{filter:none!important;opacity:1!important}" +
-  ".spine-fill{transform:translateX(-50%)!important}" +
-  ".spine-node{background:var(--ink)!important}.spine-connector{border-color:var(--ink)!important}" +
-  ".intro{opacity:1!important;transform:none!important}.night-reel-wrap{opacity:1!important}.glyph{stroke-dashoffset:0!important;fill-opacity:1!important}" +
-  "[role=tabpanel][hidden]{display:block!important}";
+  ".intro{opacity:1!important;transform:none!important}.night-reel-wrap{opacity:1!important}.glyph{stroke-dashoffset:0!important;fill-opacity:1!important}";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
