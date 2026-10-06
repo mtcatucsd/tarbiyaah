@@ -139,7 +139,7 @@ html.motion [data-in-view="true"] .hatch-in { opacity: 1; }
 /* Lanterns as their own compositor layers: only transform and opacity change, nothing repaints. */
 .lantern-swing { position: absolute; transform-origin: 50% 0; animation: sway 7s ease-in-out infinite; animation-delay: var(--sway-delay, 0s); will-change: transform; }
 .lantern-cord { position: absolute; left: 50%; top: 0; width: 1px; background: var(--ink); }
-.lantern-light { position: absolute; border-radius: 4px; background: var(--accent-gold); animation: glow 4s ease-in-out infinite; will-change: opacity; }
+.lantern-light { position: absolute; border-radius: 2px; background: var(--accent-gold); animation: glow 4s ease-in-out infinite; will-change: opacity; }
 
 /* ---------- hero ---------- */
 .hero-vars { --sky-h: clamp(190px, min(26vw, 36vh), 520px); --hero-top: clamp(5rem, 11vh, 8rem); }
