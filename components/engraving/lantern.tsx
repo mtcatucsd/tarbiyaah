@@ -17,7 +17,8 @@ export function SwingingLantern({ left, top, w, cord, delay = 0 }: { left: numbe
       aria-hidden="true"
     >
       <span className="lantern-cord" style={{ height: cord }} />
-      <span className="lantern-light" style={{ top: cord + h * 0.3, left: w * 0.2, width: w * 0.6, height: h * 0.42 }} />
+      {/* The glow sits exactly in the lit window panels (41–74% of the height, between the roof and the lower rim, out to the body's side pillars), so it never shows outside the lantern. */}
+      <span className="lantern-light" style={{ top: cord + h * 0.42, left: w * 0.135, width: w * 0.73, height: h * 0.315 }} />
       <Image src="/art/lantern.webp" alt="" width={110} height={226} className="absolute left-0" style={{ top: cord, width: w, height: h }} />
     </div>
   );
