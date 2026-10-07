@@ -11,6 +11,7 @@ export function Speakers() {
       <div className="grid justify-items-center gap-3">
         <p className="mono-label">Speakers</p>
         <h2 data-anim="lines" className="qe-lead">Voices of the conference</h2>
+        <p className="qe-body">More details coming soon.</p>
       </div>
       <ul data-scene="speakers" className="grid w-full max-w-[1100px] grid-cols-2 gap-x-6 gap-y-12 md:grid-cols-4">
         {speakers.map((s, i) => (

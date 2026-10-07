@@ -7,7 +7,7 @@ import { siteConfig } from "@/lib/site-config";
 // Quiet Edition's closing, merged with tickets and the footer: a statement and the tickets pill over the engraved
 // Geisel landscape, which stands right on the band of ink that holds the fine print and links.
 export function Closing() {
-  const { contact } = siteConfig;
+  const [abdullah, areeba] = siteConfig.contacts;
   const icon = "grid size-10 place-items-center rounded-full border border-paper/30 transition-colors hover:bg-paper/15";
   return (
     <section id="tickets" className="relative overflow-hidden">
@@ -44,8 +44,9 @@ export function Closing() {
         </div>
         <p className="mx-auto mt-7 max-w-[720px] text-center text-[0.8rem] leading-snug text-paper/75">
           Have a promo code? Enter it at checkout. A confirmation is sent to the email you register with.
-          Questions about the day go to {contact.role}: {contact.name},{" "}
-          <a className="underline underline-offset-2" href={`tel:${contact.phone.replace(/-/g, "")}`}>{contact.phone}</a>.
+          Questions about the day? Reach out to {abdullah.name} (
+          <a className="underline underline-offset-2" href={`mailto:${abdullah.email}`}>{abdullah.email}</a>) or {areeba.name} (
+          <a className="underline underline-offset-2" href={`mailto:${areeba.email}`}>{areeba.email}</a>).
         </p>
       </footer>
     </section>

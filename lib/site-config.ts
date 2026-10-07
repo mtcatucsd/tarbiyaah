@@ -12,7 +12,10 @@ export const siteConfig = {
   tagline: "Transforming knowledge into action.",
   ticketUrl: "", // paste the Luma event link here (https://lu.ma/...). Every Get tickets button opens it in a new tab. Empty: they scroll to the tickets section.
   timeZone: "America/Los_Angeles",
-  instagramUrl: "https://www.instagram.com/msaucsd/",
+  instagramUrl: "https://www.instagram.com/msaatucsd/",
   websiteUrl: "https://msaucsd.com/",
-  contact: { role: "MSA Communications", name: "Amina Abukar", phone: "619-213-9018" },
+  contacts: [
+    { name: "Abdullah", email: "aminaql@ucsd.edu" },
+    { name: "Areeba", email: "arafiq@ucsd.edu" },
+  ],
 } as const;

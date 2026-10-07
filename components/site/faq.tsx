@@ -1,10 +1,16 @@
+import type { ReactNode } from "react";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { siteConfig } from "@/lib/site-config";
 
-const items = [
+const link = "underline underline-offset-2";
+const items: { q: string; a: ReactNode }[] = [
   {
     q: "When and where is it?",
     a: `${siteConfig.dateText}, ${siteConfig.timeText}, in the Multipurpose Room (MPR) of the Student Services Center at UC San Diego. It falls at the end of week 5.`,
+  },
+  {
+    q: "Who can attend?",
+    a: "Tarbiyyah is open to everyone, not just students.",
   },
   {
     q: "How do I get a ticket?",
@@ -20,7 +26,14 @@ const items = [
   },
   {
     q: "Who do I contact with questions?",
-    a: `${siteConfig.contact.role}: ${siteConfig.contact.name}.`,
+    a: (
+      <>
+        Reach out to {siteConfig.contacts[0].name} at{" "}
+        <a className={link} href={`mailto:${siteConfig.contacts[0].email}`}>{siteConfig.contacts[0].email}</a> or{" "}
+        {siteConfig.contacts[1].name} at{" "}
+        <a className={link} href={`mailto:${siteConfig.contacts[1].email}`}>{siteConfig.contacts[1].email}</a>.
+      </>
+    ),
   },
 ];
 
