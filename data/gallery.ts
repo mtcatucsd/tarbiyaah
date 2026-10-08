@@ -53,3 +53,20 @@ export const galleryPhotos: GalleryPhoto[] = [
   {"id":"0d6f629b","w":2304,"h":1536,"alt":"A speaker at the table under The Art of Adab slide before a seated audience"},
   {"id":"01f47e06","w":2304,"h":1536,"alt":"The audience facing the stage, where a speaker sits beneath The Art of Adab slide"},
 ];
+
+// The home carousel's photos, in order, with `fx`: where the card's window sits across the photo (0 = left edge,
+// 1 = right edge; keep 0.15–0.85). Landscape only: a card shows a 3:2 slice.
+export const carouselPicks: { id: string; fx: number }[] = [
+  { id: "0bacd249", fx: 0.6 },
+  { id: "0bb0db3f", fx: 0.5 },
+  { id: "1d868a1e", fx: 0.4 },
+  { id: "0c69e397", fx: 0.5 },
+  { id: "0b4c1a13", fx: 0.4 },
+  { id: "1dcc68b5", fx: 0.6 },
+  { id: "0a0d89b6", fx: 0.7 },
+  { id: "0bf746cb", fx: 0.8 },
+  { id: "1accd2af", fx: 0.4 },
+  { id: "0d8746a1", fx: 0.5 },
+  { id: "2a7f2612", fx: 0.7 },
+  { id: "0ee3145c", fx: 0.5 },
+];

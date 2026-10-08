@@ -1,21 +1,17 @@
 "use client";
 import Image from "next/image";
+import Link from "next/link";
 import { useEffect, useRef, useState, type CSSProperties, type PointerEvent } from "react";
+import { carouselPicks, galleryPhotos } from "@/data/gallery";
 import { parallaxShift } from "@/lib/format";
 
 // Gallery as a parallax carousel (after Framer's Parallax Carousel): one row of tall cards that moves only when you
 // swipe, scroll, drag or use the arrows. Each photo is twice its card's width and slides against the card's offset
 // from the centre of the row, so it drifts inside its frame. The work runs only while the row moves, and only on
 // `transform`. With reduced motion the photos stay still at their focal point.
-// `fx` is where the visible window sits across the photo's spare width (0 = left edge, 1 = right edge); keep it
-// between 0.15 and 0.85 so the parallax never runs out of photo.
-const photos = [
-  { src: "gallery-stage", fx: 0.55, alt: "A speaker on stage beneath The Art of Adab slide, facing a full audience" },
-  { src: "gallery-speakers", fx: 0.5, alt: "Three of last year's speakers smiling together in the lobby" },
-  { src: "gallery-booth", fx: 0.3, alt: "Attendees talking with exhibitors at a community booth" },
-  { src: "gallery-panel", fx: 0.76, alt: "Two speakers seated at a table on stage for a panel" },
-  { src: "gallery-session", fx: 0.4, alt: "A student at the lectern beneath the Session 1 slide" },
-];
+// `fx` (data/gallery.ts) is where the visible window sits across the photo's spare width (0 = left edge, 1 = right
+// edge); it stays between 0.15 and 0.85 so the parallax never runs out of photo.
+const photos = carouselPicks.map(({ id, fx }) => ({ ...galleryPhotos.find((p) => p.id === id)!, fx }));
 
 const MAX_SHIFT = 0.15; // of a card's width
 
@@ -84,12 +80,12 @@ export function Gallery() {
       <p data-anim="lines" className="qe-lead-sm px-5 text-center">From last year&apos;s conference, The Art of Adab.</p>
       <ul ref={row} className="pcar" tabIndex={0} aria-label="Photo carousel" onPointerDown={down} onPointerMove={move} onPointerUp={up} onPointerCancel={up}>
         {photos.map((p, i) => (
-          <li key={p.src} className="pcar-card" style={{ "--fx": p.fx } as CSSProperties}>
+          <li key={p.id} className="pcar-card" style={{ "--fx": p.fx } as CSSProperties}>
             <Image
-              src={`/photos/${p.src}.webp`}
+              src={`/photos/gallery/${p.id}.webp`}
               alt={p.alt}
-              width={960}
-              height={640}
+              width={p.w}
+              height={p.h}
               sizes="(max-width: 640px) 140vw, 690px"
               draggable={false}
               className="pcar-img"
@@ -106,6 +102,10 @@ export function Gallery() {
           <svg viewBox="0 0 24 24" className="size-5" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6" /></svg>
         </button>
       </div>
+      <Link href="/gallery/" className="qe-pill justify-self-center">
+        See all {galleryPhotos.length} photos
+        <svg viewBox="0 0 24 24" className="size-4" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6" /></svg>
+      </Link>
     </section>
   );
 }
