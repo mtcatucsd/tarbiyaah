@@ -118,3 +118,11 @@ slots, the plane is a set of columns:
 ## Out of scope
 
 Video tiles, hover captions (the photos have no titles), filtering or categories, and changes to the hero reel.
+
+## Revision (2026-10-08, during implementation)
+
+The user asked that the gallery "not be clickable" and "mimic the framer component to a tee". The live demo instance
+runs with the lightbox off, tilt 0°, no tile shadow and no visible captions. So: **no lightbox, no tilt, no tile
+shadow**; tiles are plain images. This supersedes the lightbox, tilt, focusable-tile and drag-click parts above.
+Unchanged: inertia, wheel, edge scroll, parallax 14 px, hover scale 1.03, tiles keep their aspect ratio (the user's
+"all photos visible"), stage arrow-key panning and alt text.

@@ -1197,3 +1197,26 @@ scrollable grid of all 50 thumbnails with alt text, each linking to the full pho
 - [ ] **Step 4: Full test run** — Run: `npm test && npm run lint` — Expected: all pass, no warnings added.
 
 - [ ] **Step 5: Commit any fixes** from Steps 1–4 with a message describing them.
+
+---
+
+### Task 9: Match the Framer demo exactly (added mid-run at the user's request)
+
+The user: "the gallery should not be clickable, mimic the framer component to a tee". The live demo instance (measured
+2026-10-08) runs with the lightbox off, tilt 0°, no tile shadow, no visible captions; parallax 14 px, edge scroll,
+inertia and hover scale 1.03 are on.
+
+**Files:** Modify `lib/gallery-motion.ts`, `tests/gallery-motion.test.ts`, `components/site/gallery-grid.tsx`,
+`app/gallery/page.tsx`, `app/globals.css`. Delete `components/site/gallery-lightbox.tsx`, `components/site/gallery-view.tsx`.
+
+- [ ] **Step 1:** Test that `MOTION` equals the demo's settings (no `tilt`, no `dragClick`); drop the `isDragClick` tests. Run → FAIL.
+- [ ] **Step 2:** Remove `tilt`, `dragClick` and `isDragClick` from `lib/gallery-motion.ts`. Run → PASS.
+- [ ] **Step 3:** Grid: tiles become plain `div`s with the image's alt text (repeats `aria-hidden`, `alt=""`); no click,
+  no focus handling, no tilt layer or perspective; `GalleryGrid({ photos })`. Page renders `GalleryGrid` directly; the
+  noscript fallback shows images without links. Delete the lightbox and view. Remove `.glb*` styles and the tile shadow.
+- [ ] **Step 4:** `npx tsc --noEmit && npm run lint && npm test`; browser: click does nothing, no tilt, parallax and
+  edge scroll still work, keyboard arrows still pan.
+- [ ] **Step 5:** Commit.
+
+Kept on purpose (user's earlier "ensuring all photos are visible", site look, invisible a11y): tiles keep each photo's
+aspect ratio, cream paper background, stage arrow-key panning, alt text.

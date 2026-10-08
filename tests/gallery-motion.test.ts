@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { MOTION, arrowPush, clamp, decay, edgePush, isDragClick, releaseVelocity, wheelPixels } from "@/lib/gallery-motion";
+import { MOTION, arrowPush, clamp, decay, edgePush, releaseVelocity, wheelPixels } from "@/lib/gallery-motion";
+
+describe("MOTION", () => {
+  it("matches the Framer demo: no tilt, no click handling", () => {
+    expect(MOTION).toEqual({ friction: 35, throwMax: 5000, wheelMax: 4000, restMs: 90, stopBelow: 4, edgeZone: 110, edgeSpeed: 6, parallax: 14, keyPush: 900 });
+  });
+});
 
 describe("decay", () => {
   it("matches Framer's friction 35 per frame and compounds over frames", () => {
@@ -57,10 +63,4 @@ describe("wheelPixels", () => {
     expect(wheelPixels(e(0, 100, 0, true), 900)).toEqual([100, 0]);
     expect(wheelPixels(e(20, 100, 0, true), 900)).toEqual([20, 100]);
   });
-});
-
-describe("isDragClick", () => {
-  it("ignores the click that ends a drag", () => expect(isDragClick(1, 40)).toBe(true));
-  it("counts a click with a tiny wobble", () => expect(isDragClick(1, 4)).toBe(false));
-  it("always counts keyboard clicks, even after an earlier drag", () => expect(isDragClick(0, 400)).toBe(false));
 });

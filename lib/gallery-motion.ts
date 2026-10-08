@@ -1,8 +1,8 @@
-// Physics for the gallery canvas, measured from Framer's Dynamic Gallery Grid (see
+// Physics for the gallery canvas, measured from Framer's Dynamic Gallery Grid demo, which runs with tilt off (see
 // docs/superpowers/specs/2026-10-08-gallery-page-design.md). Velocities are px/s; "frames" are 60 fps frames.
 export const MOTION = {
   friction: 35, throwMax: 5000, wheelMax: 4000, restMs: 90, stopBelow: 4,
-  edgeZone: 110, edgeSpeed: 6, tilt: 6, parallax: 14, keyPush: 900, dragClick: 6,
+  edgeZone: 110, edgeSpeed: 6, parallax: 14, keyPush: 900,
 };
 
 export const clamp = (v: number, lo = -1, hi = 1) => Math.min(hi, Math.max(lo, v));
@@ -26,6 +26,3 @@ export function wheelPixels(e: { deltaX: number; deltaY: number; deltaMode: numb
   const dx = e.deltaX * unit, dy = e.deltaY * unit;
   return e.shiftKey && !dx ? [dy, 0] : [dx, dy];
 }
-
-// Keyboard clicks have detail 0, so a drag earlier on can't swallow them.
-export const isDragClick = (detail: number, moved: number) => detail > 0 && moved > MOTION.dragClick;

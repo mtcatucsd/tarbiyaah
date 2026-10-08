@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { GalleryView } from "@/components/site/gallery-view";
+import { GalleryGrid } from "@/components/site/gallery-grid";
 import { galleryPhotos } from "@/data/gallery";
 
 export const metadata: Metadata = {
@@ -23,13 +23,13 @@ export default function GalleryPage() {
         <p className="gpage-title">The Art of Adab · 2025</p>
         <p className="gpage-count">{galleryPhotos.length} photos</p>
       </header>
-      <GalleryView photos={galleryPhotos} />
+      <GalleryGrid photos={galleryPhotos} />
       <noscript>
         <ul className="gpage-fallback">
           {galleryPhotos.map((p) => (
             <li key={p.id}>
               {/* eslint-disable-next-line @next/next/no-img-element -- no-JS fallback */}
-              <a href={`/photos/gallery/${p.id}.webp`}><img src={`/photos/gallery/${p.id}-sm.webp`} alt={p.alt} width={p.w} height={p.h} loading="lazy" /></a>
+              <img src={`/photos/gallery/${p.id}-sm.webp`} alt={p.alt} width={p.w} height={p.h} loading="lazy" />
             </li>
           ))}
         </ul>
