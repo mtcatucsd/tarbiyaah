@@ -24,7 +24,7 @@ Success means:
 | Source images | `~/Downloads/Picflow Images Oct 8` (50 webp, 8.7 MB, already compressed by the user). Used as-is for full size, not re-encoded. |
 | Thumbnails | Generated with `sharp` (already in `node_modules`): 640 px wide, webp. |
 | Animation engine | Plain refs + one `requestAnimationFrame` loop, like `components/site/gallery.tsx`. No new dependencies. |
-| Lightbox | Built on the existing `components/ui/dialog.tsx` (Radix): Esc, focus trap and scroll lock come free. |
+| Lightbox | Built on Radix Dialog primitives (as `components/ui/dialog.tsx` is, but unstyled so it can be full screen): Esc, focus trap and scroll lock come free. |
 | Home nav | Stays `#gallery` (the carousel); the carousel gets a "See all 50 photos" link to `/gallery/`. |
 
 ## Reference analysis: dynamicgallerygrid.framer.website
@@ -73,18 +73,20 @@ slots, the plane is a set of columns:
 
 | File | Purpose |
 |---|---|
-| `scripts/prep-photos.mjs` | `node scripts/prep-photos.mjs <source dir>`. Copies each webp to `public/photos/gallery/NN.webp` (auto-rotated only if EXIF says so, otherwise copied byte-for-byte), writes `NN-sm.webp` (640 w, q 72), and writes `data/gallery.ts`. Re-running keeps existing alt text and focal points, matched by source filename. |
+| `scripts/prep-photos.mjs` | `node scripts/prep-photos.mjs <source dir>`. Copies each webp to `public/photos/gallery/<id>.webp`, where `id` is the first 8 characters of the source filename, lowercased (auto-rotated only if EXIF says so, otherwise copied byte-for-byte). Writes `<id>-sm.webp` (640 w, q 72) and `data/gallery.ts`. Re-running keeps existing alt text and order, matched by id. |
 | `data/gallery.ts` | `galleryPhotos: { id, w, h, alt, source }[]`, ordered for a good mix (stage, speakers, crowd, bazaar, candid). |
-| `lib/gallery-layout.ts` | Pure functions: `wrap(n, span)`, `buildColumns(photos, viewW, viewH, sizing)`, `tilePosition(tile, layout, offsetX, offsetY)`. No DOM. |
+| `lib/gallery-layout.ts` | Pure functions: `wrap(n, span)`, `sizingFor(viewW)`, `buildColumns(photos, viewW, viewH, sizing)`, `tilePosition(tile, layout, offsetX, offsetY)`. No DOM. |
+| `lib/gallery-motion.ts` | The measured constants (`MOTION`) and pure physics helpers: `decay`, `edgePush`, `releaseVelocity`, `arrowPush`, `wheelPixels`, `isDragClick`. No DOM. |
+| `components/site/gallery-view.tsx` | Client component: holds the open photo index, joins the grid and the lightbox, returns focus to the opening tile. |
 | `components/site/gallery-grid.tsx` | Client component: the stage, physics loop, input handlers and tiles. Takes `photos` and `onOpen(index)`. |
 | `components/site/gallery-lightbox.tsx` | Client component on `ui/dialog`: full-size image, `01 / 50` counter, arrows, ←/→ keys, swipe, alt text as an sr-only caption. |
-| `app/gallery/page.tsx` | The page: metadata, a slim header overlaid on the canvas (back link to `/`, "The Art of Adab · 2025", photo count), the grid filling `100dvh`, and a `<noscript>` fallback of plain thumbnail links. |
+| `app/gallery/page.tsx` | The page: metadata, a slim header overlaid on the canvas (back link to `/`, "The Art of Adab · 2025", photo count; only the link takes pointer events), the canvas filling the viewport, and a `<noscript>` fallback of plain thumbnail links. |
 | `components/site/gallery.tsx` | Carousel: 5 → 12 photos drawn from `data/gallery.ts` (landscape only, since cards show a 3:2 slice), each with a hand-set `fx`; adds the "See all 50 photos" link. |
 
 ### Interaction
 
 - **Pointer:** drag with inertia (all pointer types; the stage is `touch-action:none`), wheel/trackpad pans with
-  momentum, mouse edge scroll (disabled while the pointer is over the header), click a tile to open it.
+  momentum, mouse edge scroll (stops while the pointer is over the back link), click a tile to open it. A click that ends a drag of more than 6 px is ignored; keyboard clicks always open.
 - **Keyboard:** the stage is focusable (`tabIndex=0`, labelled "Photo gallery, use arrow keys to move"); arrow keys
   add a velocity nudge; tiles are `<button>`s labelled with their alt text; focusing a tile pans it into view.
   Enter/Space opens the lightbox; closing it returns focus to the tile.
