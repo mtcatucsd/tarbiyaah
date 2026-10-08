@@ -22,9 +22,9 @@ describe("galleryPhotos", () => {
   it("describes every photo for screen readers", () => {
     for (const p of galleryPhotos) expect(p.alt.trim().length, p.id).toBeGreaterThanOrEqual(12);
   });
-  it("gives the home carousel 12 landscape photos with safe focal points", () => {
-    expect(carouselPicks).toHaveLength(12);
-    expect(new Set(carouselPicks.map((c) => c.id)).size).toBe(12);
+  it("gives the home carousel 11 landscape photos with safe focal points", () => {
+    expect(carouselPicks).toHaveLength(11);
+    expect(new Set(carouselPicks.map((c) => c.id)).size).toBe(11);
     for (const c of carouselPicks) {
       const p = galleryPhotos.find((g) => g.id === c.id);
       expect(p, c.id).toBeDefined();

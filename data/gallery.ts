@@ -66,7 +66,6 @@ export const carouselPicks: { id: string; fx: number }[] = [
   { id: "0a0d89b6", fx: 0.7 },
   { id: "0bf746cb", fx: 0.8 },
   { id: "1accd2af", fx: 0.4 },
-  { id: "0d8746a1", fx: 0.5 },
   { id: "2a7f2612", fx: 0.7 },
   { id: "0ee3145c", fx: 0.5 },
 ];
