@@ -19,10 +19,28 @@ export function edgePush(pos: number, size: number, zone = MOTION.edgeZone) {
 export const releaseVelocity = (v: number, restMs: number) => (restMs > MOTION.restMs ? 0 : clamp(v, -MOTION.throwMax, MOTION.throwMax));
 
 const ARROWS: Record<string, [number, number]> = { ArrowLeft: [1, 0], ArrowRight: [-1, 0], ArrowUp: [0, 1], ArrowDown: [0, -1] };
-export const arrowPush = (key: string) => ARROWS[key] ?? null;
+// Modified arrows belong to the browser (Alt+← is back).
+export const arrowPush = (e: { key: string; altKey: boolean; metaKey: boolean; ctrlKey: boolean }) =>
+  e.altKey || e.metaKey || e.ctrlKey ? null : (ARROWS[e.key] ?? null);
 
-export function wheelPixels(e: { deltaX: number; deltaY: number; deltaMode: number; shiftKey: boolean }, pageH: number): [number, number] {
+// Pinch and Ctrl+wheel arrive as wheel events with ctrlKey; they stay with the browser so the page can zoom.
+export function wheelPixels(e: { deltaX: number; deltaY: number; deltaMode: number; shiftKey: boolean; ctrlKey: boolean }, pageH: number): [number, number] | null {
+  if (e.ctrlKey) return null;
   const unit = e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? pageH : 1;
   const dx = e.deltaX * unit, dy = e.deltaY * unit;
   return e.shiftKey && !dx ? [dy, 0] : [dx, dy];
 }
+
+// The pointer that drives a drag: the first one down. A second finger can't take it over or end it.
+export function trackDrag() {
+  let id: number | null = null;
+  return {
+    start: (pointerId: number) => (id === null ? ((id = pointerId), true) : false),
+    owns: (pointerId: number) => id === pointerId,
+    end: (pointerId: number) => (id === pointerId ? ((id = null), true) : false),
+    cancel: () => (id === null ? false : ((id = null), true)),
+  };
+}
+
+// A mouse moving with no button held lost its pointerup (a context menu, switching apps): the drag is over.
+export const isLostMouseUp = (e: { pointerType: string; buttons: number }) => e.pointerType === "mouse" && e.buttons === 0;

@@ -3,7 +3,7 @@ import Image from "next/image";
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import type { GalleryPhoto } from "@/data/types";
 import { buildColumns, sizingFor, tilePosition, type Layout } from "@/lib/gallery-layout";
-import { MOTION, arrowPush, clamp, decay, edgePush, releaseVelocity, wheelPixels } from "@/lib/gallery-motion";
+import { MOTION, arrowPush, clamp, decay, edgePush, isLostMouseUp, releaseVelocity, trackDrag, wheelPixels } from "@/lib/gallery-motion";
 
 // The gallery page's canvas, after Framer's Dynamic Gallery Grid as its demo runs: an endless plane you drag, throw,
 // wheel or arrow around, with the tiles drifting slightly against the pointer. Tiles are only pictures (nothing opens).
@@ -85,7 +85,10 @@ export function GalleryGrid({ photos }: { photos: GalleryPhoto[] }) {
     const wake = () => { if (!frame) frame = requestAnimationFrame(tick); };
     engine.current = { paint, wake };
 
+    const pointer = trackDrag();
     const drag = (e: PointerEvent) => {
+      if (!pointer.owns(e.pointerId)) return;
+      if (isLostMouseUp(e)) { finish(); return; }
       const now = performance.now();
       const dx = e.clientX - s.lastX, dy = e.clientY - s.lastY, dt = Math.max(1, now - s.lastT);
       s.x += dx; s.y += dy;
@@ -94,7 +97,10 @@ export function GalleryGrid({ photos }: { photos: GalleryPhoto[] }) {
       s.lastX = e.clientX; s.lastY = e.clientY; s.lastT = now;
       wake();
     };
-    const release = () => {
+    const release = (e: PointerEvent) => { if (pointer.end(e.pointerId)) finish(); };
+    const drop = () => { if (pointer.cancel()) finish(); };
+    const finish = () => {
+      pointer.cancel();
       s.drag = false;
       el.style.cursor = "";
       const rest = performance.now() - s.lastT;
@@ -102,15 +108,17 @@ export function GalleryGrid({ photos }: { photos: GalleryPhoto[] }) {
       window.removeEventListener("pointermove", drag);
       window.removeEventListener("pointerup", release);
       window.removeEventListener("pointercancel", release);
+      window.removeEventListener("blur", drop);
       wake();
     };
     const down = (e: PointerEvent) => {
-      if (e.button !== 0) return;
+      if (e.button !== 0 || !pointer.start(e.pointerId)) return;
       Object.assign(s, { drag: true, vx: 0, vy: 0, edgeX: 0, edgeY: 0, lastX: e.clientX, lastY: e.clientY, lastT: performance.now() });
       el.style.cursor = "grabbing";
       window.addEventListener("pointermove", drag);
       window.addEventListener("pointerup", release);
       window.addEventListener("pointercancel", release);
+      window.addEventListener("blur", drop);
       wake();
     };
     const hover = (e: PointerEvent) => {
@@ -124,15 +132,17 @@ export function GalleryGrid({ photos }: { photos: GalleryPhoto[] }) {
     };
     const leave = () => { s.aimX = 0; s.aimY = 0; s.edgeX = 0; s.edgeY = 0; wake(); };
     const wheel = (e: WheelEvent) => {
+      const delta = wheelPixels(e, el.clientHeight);
+      if (!delta) return;
       e.preventDefault();
-      const [dx, dy] = wheelPixels(e, el.clientHeight);
+      const [dx, dy] = delta;
       if (still.matches) { s.x -= dx; s.y -= dy; paint(); return; }
       s.vx = clamp(s.vx - dx * 4, -MOTION.wheelMax, MOTION.wheelMax);
       s.vy = clamp(s.vy - dy * 4, -MOTION.wheelMax, MOTION.wheelMax);
       wake();
     };
     const key = (e: KeyboardEvent) => {
-      const push = arrowPush(e.key);
+      const push = arrowPush(e);
       if (!push) return;
       e.preventDefault();
       if (still.matches) { s.x += push[0] * 160; s.y += push[1] * 160; paint(); return; }
@@ -160,6 +170,7 @@ export function GalleryGrid({ photos }: { photos: GalleryPhoto[] }) {
       window.removeEventListener("pointermove", drag);
       window.removeEventListener("pointerup", release);
       window.removeEventListener("pointercancel", release);
+      window.removeEventListener("blur", drop);
     };
   }, []);
 
