@@ -15,7 +15,7 @@ export const siteConfig = {
   instagramUrl: "https://www.instagram.com/msaatucsd/",
   websiteUrl: "https://msaucsd.com/",
   contacts: [
-    { name: "Abdullah", email: "aminaql@ucsd.edu" },
-    { name: "Areeba", email: "arafiq@ucsd.edu" },
+    { name: "Abdullah", email: "arafiq@ucsd.edu" },
+    { name: "Areeba", email: "aminaal@ucsd.edu" },
   ],
 } as const;
