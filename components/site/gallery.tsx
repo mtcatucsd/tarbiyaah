@@ -103,7 +103,7 @@ export function Gallery() {
         </button>
       </div>
       <Link href="/gallery/" className="qe-pill justify-self-center">
-        See all {galleryPhotos.length} photos
+        View the gallery
         <svg viewBox="0 0 24 24" className="size-4" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6" /></svg>
       </Link>
     </section>
