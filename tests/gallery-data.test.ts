@@ -9,8 +9,11 @@ describe("galleryPhotos", () => {
     expect(galleryPhotos).toHaveLength(50);
     expect(new Set(galleryPhotos.map((p) => p.id)).size).toBe(50);
   });
-  it("has a full-size file and a thumbnail for every photo, and nothing else", () => {
-    const expected = galleryPhotos.flatMap((p) => [`${p.id}.webp`, `${p.id}-sm.webp`]).sort();
+  it("has a full-size file and a thumbnail for every photo, a medium copy for the carousel's, and nothing else", () => {
+    const expected = [
+      ...galleryPhotos.flatMap((p) => [`${p.id}.webp`, `${p.id}-sm.webp`]),
+      ...carouselPicks.map((c) => `${c.id}-md.webp`),
+    ].sort();
     expect(fs.readdirSync(dir).filter((f) => !f.startsWith(".")).sort()).toEqual(expected);
   });
   it("has real dimensions for every photo", () => {

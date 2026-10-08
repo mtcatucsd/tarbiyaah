@@ -82,7 +82,7 @@ export function Gallery() {
         {photos.map((p, i) => (
           <li key={p.id} className="pcar-card" style={{ "--fx": p.fx } as CSSProperties}>
             <Image
-              src={`/photos/gallery/${p.id}.webp`}
+              src={`/photos/gallery/${p.id}-md.webp`}
               alt={p.alt}
               width={p.w}
               height={p.h}

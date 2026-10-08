@@ -2,7 +2,8 @@
 //   node scripts/prep-photos.mjs "<source dir of .webp files>"
 // Each photo is copied as public/photos/gallery/<id>.webp (re-encoded only if EXIF says to rotate it) with a 640 px
 // thumbnail <id>-sm.webp beside it, and data/gallery.ts is rewritten. The id is the first 8 characters of the source
-// filename. Alt text and order already in data/gallery.ts are kept, so it is safe to re-run.
+// filename. Alt text, order and the carousel picks already in data/gallery.ts are kept, so it is safe to re-run.
+// Each carousel pick also gets <id>-md.webp, 1400 px wide: its cards are at most ~690 CSS px, so that is sharp at 2x.
 import fs from "node:fs";
 import path from "node:path";
 import sharp from "sharp";
@@ -38,6 +39,9 @@ for (const file of fs.readdirSync(src).filter((f) => /\.webp$/i.test(f)).sort())
   photos.push({ id, w: turned ? meta.height : meta.width, h: turned ? meta.width : meta.height, alt: alts.get(id) ?? "" });
 }
 if (new Set(photos.map((p) => p.id)).size !== photos.length) throw new Error("two source files share an 8-character prefix");
+for (const [, id] of tail.matchAll(/id: "(\w+)"/g)) {
+  await sharp(path.join(OUT, `${id}.webp`)).resize({ width: 1400 }).webp({ quality: 75 }).toFile(path.join(OUT, `${id}-md.webp`));
+}
 photos.sort((a, b) => (order.get(a.id) ?? 1e9) - (order.get(b.id) ?? 1e9));
 
 fs.writeFileSync(
