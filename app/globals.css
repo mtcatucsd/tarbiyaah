@@ -355,6 +355,30 @@ html.motion [data-in-view="true"] .hatch-in { opacity: 1; }
 @keyframes glb-fade { from { opacity: 0; } }
 @keyframes glb-rise { from { opacity: 0; transform: translateY(12px) scale(.98); } }
 
+/* Gallery page (app/gallery/page.tsx): a full-screen canvas under a header that fades into the paper. */
+.gpage { position: fixed; inset: 0; background: var(--paper); }
+.gpage-bar { position: absolute; inset: 0 0 auto; z-index: 10; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 14px clamp(16px, 3vw, 28px) 28px; background: linear-gradient(var(--paper) 45%, transparent); pointer-events: none; }
+.gpage-bar a { pointer-events: auto; }
+.gpage-title { font-family: var(--font-instrument), serif; font-size: clamp(1.1rem, 2.2vw, 1.6rem); color: var(--ink-deep); }
+.gpage-count { font-size: .85rem; color: var(--muted-foreground); font-variant-numeric: tabular-nums; }
+@media (max-width: 640px) { .gpage-count { display: none; } }
+.gpage-fallback { position: absolute; inset: 72px 0 0; overflow: auto; columns: 3 220px; column-gap: 12px; padding: 0 16px 24px; list-style: none; }
+.gpage-fallback li { break-inside: avoid; margin-bottom: 12px; }
+.gpage-fallback img { width: 100%; height: auto; border-radius: 10px; }
+
+/* Gallery canvas (components/site/gallery-grid.tsx), after Framer's Dynamic Gallery Grid: tiles placed only by
+   translate3d on a layer that tilts in 3D. overflow: clip so focusing a tile can never scroll the stage. */
+.ggrid { position: absolute; inset: 0; overflow: clip; perspective: 1400px; touch-action: none; user-select: none; -webkit-user-select: none; cursor: grab; outline: none; }
+.ggrid:focus-visible { box-shadow: inset 0 0 0 3px var(--ink-deep); }
+.ggrid-layer { position: absolute; inset: 0; transform-style: preserve-3d; transform-origin: 50% 50%; will-change: transform; }
+.ggrid-tile { position: absolute; left: 0; top: 0; padding: 0; border: 0; background: none; cursor: inherit; outline: none; will-change: transform; }
+.ggrid-face { display: block; width: 100%; height: 100%; border-radius: 10px; overflow: hidden; background: var(--paper-shade);
+  box-shadow: 0 4px 14px rgb(31 79 92 / 0.14); transition: transform .45s cubic-bezier(.2,.7,.2,1); }
+.ggrid-face img { display: block; width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
+@media (hover: hover) { .ggrid-tile:hover .ggrid-face { transform: scale(1.03); } }
+.ggrid-tile:focus-visible .ggrid-face { transform: scale(1.03); outline: 3px solid var(--ink-deep); outline-offset: 3px; }
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important; animation-iteration-count: 1 !important;
