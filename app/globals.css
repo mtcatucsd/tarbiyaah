@@ -338,6 +338,23 @@ html.motion [data-in-view="true"] .hatch-in { opacity: 1; }
 .pcar-img { position: absolute; top: 0; left: calc(-100% * var(--fx)); width: 200%; max-width: none; height: 100%; object-fit: cover; will-change: transform; }
 @media (max-width: 640px) { .pcar { -webkit-mask-image: none; mask-image: none; } }
 
+/* Gallery lightbox (components/site/gallery-lightbox.tsx), after Framer's: dark blurred backdrop, photo rises in. */
+.glb-backdrop { position: fixed; inset: 0; z-index: 60; background: rgb(12 12 14 / 0.9); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); animation: glb-fade .3s ease both; }
+.glb { position: fixed; inset: 0; z-index: 61; display: flex; align-items: center; justify-content: center; padding: 72px 16px 32px; color: #fff; outline: none; touch-action: pan-y; }
+.glb-media { margin: 0; animation: glb-rise .4s cubic-bezier(.2,.7,.2,1) both; }
+.glb-media img { display: block; width: auto; height: auto; max-width: min(90vw, 1400px); max-height: 80vh; object-fit: contain; border-radius: 12px; user-select: none; }
+.glb-count { position: absolute; top: 26px; left: 24px; font-size: 13px; letter-spacing: .06em; opacity: .8; font-variant-numeric: tabular-nums; }
+.glb-btn { position: absolute; display: grid; place-items: center; width: 44px; height: 44px; border-radius: 999px; border: 1px solid rgb(255 255 255 / .35); background: rgb(255 255 255 / .06); color: #fff; outline: none; transition: background-color .2s; }
+.glb-btn:hover { background: rgb(255 255 255 / .18); }
+.glb-btn:focus-visible { box-shadow: 0 0 0 2px #fff; }
+.glb-close { top: 16px; right: 16px; }
+.glb-prev, .glb-next { top: 50%; margin-top: -22px; }
+.glb-prev { left: 16px; }
+.glb-next { right: 16px; }
+@media (max-width: 640px) { .glb-prev, .glb-next { top: auto; bottom: 24px; margin-top: 0; } }
+@keyframes glb-fade { from { opacity: 0; } }
+@keyframes glb-rise { from { opacity: 0; transform: translateY(12px) scale(.98); } }
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important; animation-iteration-count: 1 !important;
