@@ -19,4 +19,7 @@ describe("galleryPhotos", () => {
       expect(p.h).toBeGreaterThan(0);
     }
   });
+  it("describes every photo for screen readers", () => {
+    for (const p of galleryPhotos) expect(p.alt.trim().length, p.id).toBeGreaterThanOrEqual(12);
+  });
 });
