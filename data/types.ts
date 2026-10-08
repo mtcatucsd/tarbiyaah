@@ -26,3 +26,6 @@ export type Session = {
 };
 
 export type DayFilter = "all" | 1 | 2;
+
+/** One photo from last year's conference (data/gallery.ts). Files: /photos/gallery/<id>.webp and <id>-sm.webp (640 w). */
+export type GalleryPhoto = { id: string; w: number; h: number; alt: string };
