@@ -126,3 +126,5 @@ runs with the lightbox off, tilt 0°, no tile shadow and no visible captions. So
 shadow**; tiles are plain images. This supersedes the lightbox, tilt, focusable-tile and drag-click parts above.
 Unchanged: inertia, wheel, edge scroll, parallax 14 px, hover scale 1.03, tiles keep their aspect ratio (the user's
 "all photos visible"), stage arrow-key panning and alt text.
+
+Later the same day the user asked to drop the page title and photo count: the page has only a floating "Back to home" button over the canvas.

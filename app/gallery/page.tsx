@@ -8,21 +8,16 @@ export const metadata: Metadata = {
   description: `All ${galleryPhotos.length} photos from last year's Tarbiyyah Conference, The Art of Adab, presented by MSA at UC San Diego.`,
 };
 
-// Every photo from last year on one endless canvas (components/site/gallery-grid.tsx), under a slim header.
-// The header comes first so Tab reaches the back link before 50 tiles. Only the link takes pointer events, so the
-// canvas can be dragged from anywhere else.
+// Every photo from last year on one endless canvas (components/site/gallery-grid.tsx), with only a back-to-home button
+// floating over it. The button comes first so Tab reaches it before the canvas.
 export default function GalleryPage() {
   return (
     <main className="gpage">
       <h1 className="sr-only">Photos from the 2025 Tarbiyyah Conference, The Art of Adab</h1>
-      <header className="gpage-bar">
-        <Link href="/" className="qe-pill">
-          <svg viewBox="0 0 24 24" className="size-4" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true"><path d="M19 12H5m6-6-6 6 6 6" /></svg>
-          Tarbiyyah 2026
-        </Link>
-        <p className="gpage-title">The Art of Adab · 2025</p>
-        <p className="gpage-count">{galleryPhotos.length} photos</p>
-      </header>
+      <Link href="/" className="qe-pill gpage-back">
+        <svg viewBox="0 0 24 24" className="size-4" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true"><path d="M19 12H5m6-6-6 6 6 6" /></svg>
+        Back to home
+      </Link>
       <GalleryGrid photos={galleryPhotos} />
       <noscript>
         <ul className="gpage-fallback">
